@@ -29,7 +29,19 @@ You can find the code of your language here - https://www.w3schools.com/tags/ref
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+<!-- Font Awesome 6.5.0 -->
+<link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+      crossorigin="anonymous" referrerpolicy="no-referrer">
+
+<!-- 2‑line fix: force the page to use the FA‑6 font family -->
+<style>
+  .fa-solid, .fas {            /* keep .fas for legacy helpers */
+    font-family: "Font Awesome 6 Free" !important;
+    font-weight: 900 !important;    /* solid style */
+  }
+</style>
+
 
     </head>
     <body class="appear-animate">
