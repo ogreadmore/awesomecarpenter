@@ -2,102 +2,84 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Used-CSS Extractor</title>
+  <title>Used-CSS Extractor (iframe)</title>
   <style>
-    body { font-family: sans-serif; padding: 1em; max-width: 800px; margin: auto }
-    input, button, textarea { width: 100%; font-size: 1em; margin: 0.5em 0 }
-    textarea { height: 300px; font-family: monospace; }
+    body { font-family: sans-serif; padding: 1em; max-width: 800px; margin: auto; }
+    input, button, textarea { width: 100%; font-size: 1em; margin: 0.5em 0; }
+    #iframe { width: 100%; height: 400px; border: 1px solid #ccc; }
+    #output { height: 300px; font-family: monospace; }
   </style>
 </head>
 <body>
   <h1>Extract Only the CSS You Use</h1>
   <p>Enter the full URL of the page you want to scan:</p>
   <input id="url" type="text" placeholder="https://…/carpenter_one.html" />
-  <button id="go">Extract Used CSS</button>
-  <h2>Output</h2>
+  <button id="run">Extract Used CSS</button>
+
+  <h2>Preview</h2>
+  <iframe id="iframe" src=""></iframe>
+
+  <h2>Used CSS</h2>
   <textarea id="output" readonly placeholder="Your inlinable CSS will appear here…"></textarea>
 
   <script>
-  async function extractUsedCSS(pageUrl) {
-    // 1) Fetch page HTML
-    let res = await fetch(pageUrl);
-    if (!res.ok) throw new Error('Failed to fetch page: ' + res.status);
-    let html = await res.text();
-    let parser = new DOMParser();
-    let doc = parser.parseFromString(html, 'text/html');
-
-    // 2) Gather all CSS sources
-    let cssSources = [];
-    // 2a) Inline <style>
-    doc.querySelectorAll('style').forEach(style => {
-      cssSources.push({ href: null, text: style.textContent });
+    document.getElementById('run').addEventListener('click', () => {
+      const url = document.getElementById('url').value.trim();
+      if (!url) return alert('Please enter a URL');
+      const iframe = document.getElementById('iframe');
+      iframe.src = url;
+      iframe.onload = () => extractCSS(iframe);
     });
-    // 2b) External <link rel="stylesheet">
-    let links = Array.from(doc.querySelectorAll('link[rel="stylesheet"]'))
-                     .map(l => new URL(l.href, pageUrl).href);
-    for (let href of links) {
-      let r2 = await fetch(href);
-      if (r2.ok) {
-        let txt = await r2.text();
-        cssSources.push({ href, text: txt });
-      } else {
-        console.warn('Could not fetch CSS:', href, r2.status);
-      }
-    }
 
-    // 3) For each CSS source, parse rules and test against the doc
-    let used = '';
-    for (let {href, text} of cssSources) {
-      // create a temporary doc to parse CSSRules
-      let tmpDoc = document.implementation.createHTMLDocument();
-      let styleEl = tmpDoc.createElement('style');
-      styleEl.textContent = text;
-      tmpDoc.head.appendChild(styleEl);
+    function extractCSS(iframe) {
+      const doc = iframe.contentDocument;
+      let usedCSS = '';
 
-      let rules;
-      try { rules = styleEl.sheet.cssRules; }
-      catch (e) { continue; /* parsing error or unsupported sheet */ }
-
-      let sheetUsed = '';
-      for (let rule of rules) {
-        // style rules
-        if (rule.type === CSSRule.STYLE_RULE) {
-          let keep = false;
-          try { keep = !!doc.querySelector(rule.selectorText); }
-          catch(_) { keep = true; } // pseudo-classes, dynamic selectors
-          if (keep) sheetUsed += rule.cssText + "\n";
+      for (const sheet of doc.styleSheets) {
+        let rules;
+        try {
+          rules = sheet.cssRules;
+        } catch {
+          continue; // cross-origin or inaccessible
         }
-        // media rules
-        else if (rule.type === CSSRule.MEDIA_RULE) {
-          let block = '';
-          for (let mr of rule.cssRules) {
-            let ok = false;
-            try { ok = !!doc.querySelector(mr.selectorText); }
-            catch(_) { ok = true; }
-            if (ok) block += "  " + mr.cssText + "\n";
+        let sheetText = '';
+
+        for (const rule of rules) {
+          // STYLE_RULE
+          if (rule.type === CSSRule.STYLE_RULE) {
+            let keep = false;
+            try {
+              keep = !!doc.querySelector(rule.selectorText);
+            } catch {
+              keep = true; // e.g. pseudo-classes
+            }
+            if (keep) sheetText += rule.cssText + "\n";
           }
-          if (block) sheetUsed += `@media ${rule.conditionText} {\n${block}}\n`;
+          // MEDIA_RULE
+          else if (rule.type === CSSRule.MEDIA_RULE) {
+            let mediaBlock = '';
+            for (const mr of rule.cssRules) {
+              let mkeep = false;
+              try {
+                mkeep = !!doc.querySelector(mr.selectorText);
+              } catch {
+                mkeep = true;
+              }
+              if (mkeep) mediaBlock += "  " + mr.cssText + "\n";
+            }
+            if (mediaBlock) {
+              sheetText += `@media ${rule.conditionText} {\n${mediaBlock}}\n`;
+            }
+          }
+        }
+
+        if (sheetText) {
+          usedCSS += `/* from ${sheet.href||'inline'} */\n${sheetText}\n`;
         }
       }
-      if (sheetUsed) {
-        used += `/* from ${href||'inline <style>'} */\n` + sheetUsed + "\n";
-      }
-    }
 
-    return used;
-  }
-
-  document.getElementById('go').addEventListener('click', async () => {
-    let url = document.getElementById('url').value.trim();
-    if (!url) return alert('Enter a URL first');
-    document.getElementById('output').value = '⏳ extracting…';
-    try {
-      let css = await extractUsedCSS(url);
-      document.getElementById('output').value = css || '⚠️ No used CSS found.';
-    } catch (err) {
-      document.getElementById('output').value = 'Error: ' + err;
+      document.getElementById('output').value = usedCSS || '⚠️ No used CSS found.';
     }
-  });
   </script>
 </body>
 </html>
