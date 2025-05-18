@@ -18,28 +18,28 @@
     button { background:#007bff; color:#fff; border:none; padding:10px 15px; border-radius:4px; cursor:pointer; font-size:16px; margin-right:10px; }
     button:hover { background:#0069d9; }
     #templateEditor { width:100%; height:200px; font-family:monospace; margin-bottom:20px; }
-    #preview { border:1px solid #ddd; padding:20px; min-height:400px; background:#fff; border-radius:4px; overflow:auto; }
+    #preview { border:1px solid #ddd; padding:20px; background:#fff; border-radius:4px; overflow:auto; }
     .action-buttons { margin-top:20px; }
     #templateContainer { margin-bottom:20px; }
 
+    /* Improved preview container */
+    #preview {
+      margin-bottom: 15px;
+      overflow: auto;
+      resize: both;
+      min-width: 300px;
+      min-height: 400px;
+      border: 1px solid #ddd;
+      box-sizing: border-box;
+    }
+    
     /* Keep preview visible as you scroll */
     .preview-section {
       position: sticky;
       top: 20px;
       max-height: calc(100vh - 40px);
-      overflow:auto;
-    }
-    
-    /* Add some space between preview and buttons */
-    #preview {
-      margin-bottom: 15px;
       overflow: auto;
-      resize: both; /* Allow both horizontal and vertical resizing */
-      min-width: 300px;
-      min-height: 400px;
-      max-width: 100%;
-      max-height: 80vh;
-      border: 1px solid #ddd;
+      padding: 20px;
     }
     
     /* Responsive controls */
@@ -84,6 +84,16 @@
     .preset-button:hover {
       background: #e9ecef;
     }
+
+    /* Add responsive behavior for the container */
+    @media (max-width: 992px) {
+      .container {
+        flex-direction: column;
+      }
+      .form-section, .preview-section {
+        width: 100%;
+      }
+    }
   </style>
 </head>
 <body>
@@ -116,7 +126,7 @@
           <button class="preset-button" data-width="1024">Laptop</button>
           <button class="preset-button" data-width="1440">Desktop</button>
         </div>
-        <input type="range" class="width-slider" id="widthSlider" min="320" max="1200" value="100%">
+        <input type="range" class="width-slider" id="widthSlider" min="320" max="1440" value="100%">
         <span class="width-display" id="widthDisplay">100%</span>
         <input type="range" class="height-slider" id="heightSlider" min="400" max="1200" value="600">
         <span class="height-display" id="heightDisplay">600px</span>
@@ -263,7 +273,7 @@
       document.getElementById('templateEditor').value = sampleTemplate;
     });
 
-    // 5) Update preview using srcdoc
+    // Add one-time update function after iframe loads
     document.getElementById('updatePreview').addEventListener('click', () => {
       const tpl = document.getElementById('templateEditor').value;
       if (!tpl.trim()) {
@@ -301,8 +311,8 @@
       iframe.srcdoc = out;
       preview.appendChild(iframe);
       
-      // Set initial dimensions based on sliders
-      updatePreviewDimensions();
+      // Update preview dimensions right after creating iframe
+      setTimeout(updatePreviewDimensions, 0);
     });
 
     // 6) Download populated HTML
@@ -345,30 +355,31 @@
       URL.revokeObjectURL(url);
     });
 
-    // 7) Initialize - FIXED VERSION
+    // 7) Initialize
     function initialize() {
       document.getElementById('templateEditor').value = sampleTemplate;
       form.querySelectorAll('input,textarea').forEach(i => i.dispatchEvent(new Event('input')));
       setupResponsiveControls();
     }
 
-    // 8) Setup responsive preview controls
+    // 8) Setup responsive preview controls - SIMPLIFIED VERSION
     function setupResponsiveControls() {
       const widthSlider = document.getElementById('widthSlider');
-      const widthDisplay = document.getElementById('widthDisplay');
       const heightSlider = document.getElementById('heightSlider');
-      const heightDisplay = document.getElementById('heightDisplay');
       const presetButtons = document.querySelectorAll('.preset-button');
       
       // Update dimensions based on sliders
       widthSlider.addEventListener('input', updatePreviewDimensions);
       heightSlider.addEventListener('input', updatePreviewDimensions);
       
-      // Handle preset buttons
+      // Handle preset buttons - direct approach
       presetButtons.forEach(button => {
         button.addEventListener('click', () => {
+          // Set width directly from button attribute
           const width = button.getAttribute('data-width');
           widthSlider.value = width;
+          
+          // Update preview immediately
           updatePreviewDimensions();
         });
       });
@@ -377,7 +388,7 @@
       updatePreviewDimensions();
     }
     
-    // Update preview dimensions based on sliders
+    // Update preview dimensions based on sliders - DIRECT APPROACH
     function updatePreviewDimensions() {
       const widthSlider = document.getElementById('widthSlider');
       const widthDisplay = document.getElementById('widthDisplay');
@@ -385,16 +396,27 @@
       const heightDisplay = document.getElementById('heightDisplay');
       const preview = document.getElementById('preview');
       
-      const width = widthSlider.value + 'px';
-      const height = heightSlider.value + 'px';
+      // Get the desired width from slider - use directly
+      const width = parseInt(widthSlider.value);
+      const height = parseInt(heightSlider.value);
       
-      widthDisplay.textContent = width;
-      heightDisplay.textContent = height;
+      // Update the display values
+      widthDisplay.textContent = width + 'px';
+      heightDisplay.textContent = height + 'px';
       
-      // Set the container dimensions
-      preview.style.width = width;
-      preview.style.height = height;
+      // Set the preview dimensions directly
+      preview.style.width = width + 'px';
+      preview.style.height = height + 'px';
+      
+      // Force horizontal scroll when needed
+      const previewSection = document.querySelector('.preview-section');
+      previewSection.style.overflowX = 'auto';
     }
+
+    // Handle window resize events to update preview dimensions
+    window.addEventListener('resize', function() {
+      updatePreviewDimensions();
+    });
 
     // Call it directly if DOM is already loaded
     if (document.readyState === 'loading') {
