@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML Template Populator</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #333;
+        }
+        
+        h1, h2 {
+            color: #2c3e50;
+        }
+        
+        .container {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .form-section {
+            flex: 1;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .preview-section {
+            flex: 1;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .char-counter {
+            font-size: 12px;
+            color: #6c757d;
+            text-align: right;
+            margin-top: 5px;
+        }
+        
+        .warning {
+            color: #dc3545;
+        }
+        
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        
+        button:hover {
+            background-color: #0069d9;
+        }
+        
+        #templateEditor {
+            width: 100%;
+            height: 200px;
+            font-family: monospace;
+            margin-bottom: 20px;
+        }
+        
+        #preview {
+            border: 1px solid #ddd;
+            padding: 20px;
+            min-height: 400px;
+            background-color: white;
+            border-radius: 4px;
+            overflow: auto;
+        }
+        
+        .action-buttons {
+            margin-top: 20px;
+        }
+        
+        #templateContainer {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>HTML Template Populator</h1>
+    <p>Use this tool to populate your HTML template with custom content. Fill in the form, and see your template come to life in the preview section.</p>
+    
+    <div id="templateContainer">
+        <h2>Your Template</h2>
+        <p>Paste your HTML template below. Use placeholders like <code>{{siteTitle}}</code>, <code>{{headerText}}</code>, etc.</p>
+        <textarea id="templateEditor" placeholder="Paste your HTML template here. Use {{placeholders}} for dynamic content..."></textarea>
+        <button type="button" id="loadSampleTemplate">Load Sample Template</button>
+    </div>
+    
+    <div class="container">
+        <div class="form-section">
+            <h2>Content Form</h2>
+            <form id="contentForm">
+                <!-- dynamic fields will be injected here -->
+                <!-- static Accent Color -->
+                <div class="form-group">
+                    <label for="accentColor">Accent Color <code>{{accentColor}}</code></label>
+                    <input type="color" id="accentColor" name="accentColor" value="#007bff" data-placeholder="accentColor">
+                </div>
+            </form>
+            <div class="action-buttons">
+                <button type="button" id="updatePreview">Update Preview</button>
+                <button type="button" id="downloadHTML">Download HTML</button>
+            </div>
+        </div>
+        
+        <div class="preview-section">
+            <h2>Preview</h2>
+            <div id="preview">
+                <p>Your preview will appear here. Fill in the form and click "Update Preview".</p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Sample template with placeholders matching your fields
+        const sampleTemplate = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{siteTitle}}</title>
+  <style>
+    header { background-color: {{accentColor}}; color: white; text-align: center; padding: 1rem; }
+    main { max-width: 800px; margin: 2rem auto; padding: 1rem; }
+    footer { background-color: #f4f4f4; text-align: center; padding: 1rem; margin-top: 2rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>{{bigIntro}}</h1>
+    <p>{{smallIntro}}</p>
+    <p>{{topLocation}}</p>
+  </header>
+  <main>
+    <section>
+      <h2>{{aboutHeader}}</h2>
+      <h3>{{aboutTitle}}</h3>
+      <p>{{aboutText}}</p>
+    </section>
+    <section>
+      <blockquote>{{teamQuote}}</blockquote>
+      <ul>
+        <li>{{teamName1}} — {{teamTitle1}}</li>
+        <li>{{teamName2}} — {{teamTitle2}}</li>
+        <li>{{teamName3}} — {{teamTitle3}}</li>
+        <li>{{teamName4}} — {{teamTitle4}}</li>
+        <li>{{teamName5}} — {{teamTitle5}}</li>
+      </ul>
+    </section>
+    <section>
+      <h2>{{bigService}}</h2>
+      <p>{{smallService}}</p>
+      <h3>{{creativeDesign}}</h3>
+      <ul>
+        <li>{{serviceItem1}}</li>
+        <li>{{serviceItem2}}</li>
+        <li>{{serviceItem3}}</li>
+        <li>{{serviceItem4}}</li>
+        <li>{{serviceItem5}}</li>
+        <li>{{serviceItem6}}</li>
+      </ul>
+      <div class="grid">
+        <div><img src="{{photo1Upper}}" alt=""><p>{{phone1Lower}}</p></div>
+        <div><img src="{{photo2Upper}}" alt=""><p>{{phone2Lower}}</p></div>
+        <div><img src="{{photo3Upper}}" alt=""><p>{{phone3Lower}}</p></div>
+        <div><img src="{{photo4Upper}}" alt=""><p>{{phone4Lower}}</p></div>
+        <div><img src="{{photo5Upper}}" alt=""><p>{{phone5Lower}}</p></div>
+        <div><img src="{{photo6Upper}}" alt=""><p>{{phone6Lower}}</p></div>
+      </div>
+    </section>
+    <section>
+      <h2>{{testimonialsHeader}}</h2>
+      <div>
+        <blockquote>{{testimonial1}}</blockquote>
+        <p><strong>{{testimonial1Title}}</strong> — {{testimonial1Name}}</p>
+      </div>
+      <div>
+        <blockquote>{{testimonial2}}</blockquote>
+        <p><strong>{{testimonial2Title}}</strong> — {{testimonial2Name}}</p>
+      </div>
+      <div>
+        <blockquote>{{testimonial3}}</blockquote>
+        <p><strong>{{testimonial3Title}}</strong> — {{testimonial3Name}}</p>
+      </div>
+      <div>
+        <blockquote>{{testimonial4}}</blockquote>
+        <p><strong>{{testimonial4Title}}</strong> — {{testimonial4Name}}</p>
+      </div>
+      <div>
+        <blockquote>{{testimonial5}}</blockquote>
+        <p><strong>{{testimonial5Title}}</strong> — {{testimonial5Name}}</p>
+      </div>
+      <div>
+        <blockquote>{{testimonial6}}</blockquote>
+        <p><strong>{{testimonial6Title}}</strong> — {{testimonial6Name}}</p>
+      </div>
+    </section>
+  </main>
+  <footer>
+    <p>{{contactText}}</p>
+    <p>{{footerText}}</p>
+  </footer>
+</body>
+</html>`;
+
+        // 1) Define all your form fields, labels, max-lengths & show placeholders
+        const fieldDefs = [
+          { name: 'siteTitle',        label: 'Site Title',        max: 50 },
+          { name: 'metaTitle',        label: 'Meta Title',        max: 50 },
+          { name: 'metaDescription',  label: 'Meta Description',  max: 155, type: 'textarea' },
+          { name: 'ogTitle',          label: 'OG Title',          max: 60 },
+          { name: 'ogDescription',    label: 'OG Description',    max: 140, type: 'textarea' },
+          { name: 'ogImage',          label: 'OG Image URL',      max: 400 },
+          { name: 'twitterTitle',     label: 'Twitter Title',     max: 70 },
+          { name: 'twitterDescription',label:'Twitter Description',max:140,type:'textarea' },
+          { name: 'canonicalUrl',     label: 'Canonical URL',     max: 100 },
+
+          { name: 'bigIntro',         label: 'Big Intro',         max: 50 },
+          { name: 'smallIntro',       label: 'Small Intro',       max: 90 },
+          { name: 'topLocation',      label: 'Top Location',      max: 30 },
+
+          { name: 'aboutHeader',      label: 'About Header',      max: 30 },
+          { name: 'aboutTitle',       label: 'About Title',       max: 30 },
+          { name: 'aboutText',        label: 'About Text',        max: 600, type: 'textarea' },
+
+          { name: 'teamQuote',        label: 'Team Quote',        max: 70 },
+          ...[1,2,3,4,5].flatMap(i => ([
+            { name: `teamName${i}`,  label: `Team Name ${i}`,  max: 30 },
+            { name: `teamTitle${i}`, label: `Team Title ${i}`, max: 30 },
+          ])),
+
+          { name: 'bigService',       label: 'Big Service',       max: 45 },
+          { name: 'smallService',     label: 'Small Service',     max: 85 },
+          { name: 'creativeDesign',   label: 'Creative Design',   max: 20 },
+          ...[1,2,3,4,5,6].map(i => ({
+            name: `serviceItem${i}`,
+            label: `Service List Item ${i}`,
+            max: 35
+          })),
+
+          ...[1,2,3,4,5,6].flatMap(i => ([
+            { name: `photo${i}Upper`,  label: `Photo ${i} Upper`,  max: 40 },
+            { name: `phone${i}Lower`,  label: `Phone ${i} Lower`,  max: 40 },
+          ])),
+
+          { name: 'testimonialsHeader', label: 'Testimonials Header', max: 45 },
+          ...[1,2,3,4,5,6].flatMap(i => ([
+            { name: `testimonial${i}`,      label: `Testimonial ${i}`,       max: 260, type:'textarea' },
+            { name: `testimonial${i}Title`, label: `Testimonial ${i} Title`, max: 40 },
+            { name: `testimonial${i}Name`,  label: `Testimonial ${i} Name`,  max: 40 },
+          ])),
+
+          { name: 'contactText',     label: 'Contact Text',     max: 35 },
+          { name: 'footerText',      label: 'Footer Text',      max: 175, type: 'textarea' },
+        ];
+
+        // 2) Inject fields into the form, showing their placeholder codes
+        const form = document.getElementById('contentForm');
+        fieldDefs.forEach(def => {
+          const group = document.createElement('div');
+          group.classList.add('form-group');
+
+          const label = document.createElement('label');
+          label.htmlFor = def.name;
+          // include the {{placeholder}} in the label
+          label.innerHTML = `${def.label} <code>{{${def.name}}}</code> (max ${def.max} chars)`;
+          group.appendChild(label);
+
+          let input;
+          if (def.type === 'textarea') {
+            input = document.createElement('textarea');
+          } else {
+            input = document.createElement('input');
+            input.type = 'text';
+          }
+          input.id = def.name;
+          input.name = def.name;
+          input.maxLength = def.max;
+          input.setAttribute('data-placeholder', def.name);
+          group.appendChild(input);
+
+          const counter = document.createElement('div');
+          counter.classList.add('char-counter');
+          counter.innerHTML = `<span id="${def.name}Count">0</span>/${def.max}`;
+          group.appendChild(counter);
+
+          // insert before the Accent Color group
+          const accentGroup = document.querySelector('#accentColor').closest('.form-group');
+          form.insertBefore(group, accentGroup);
+        });
+
+        // 3) Char-counter logic
+        form.querySelectorAll('input[type="text"], textarea').forEach(input => {
+          input.addEventListener('input', () => {
+            const cnt = document.getElementById(input.id + 'Count');
+            cnt.textContent = input.value.length;
+            cnt.classList.toggle('warning', input.value.length > input.maxLength * 0.8);
+          });
+        });
+
+        // 4) Load sample template
+        document.getElementById('loadSampleTemplate').addEventListener('click', () => {
+          document.getElementById('templateEditor').value = sampleTemplate;
+        });
+
+        // 5) Update preview
+        document.getElementById('updatePreview').addEventListener('click', () => {
+          const template = document.getElementById('templateEditor').value;
+          if (!template) { alert('Please enter or load a template first.'); return; }
+          const formData = new FormData(form);
+          let populated = template;
+          for (let [k, v] of formData.entries()) {
+            populated = populated.replace(new RegExp(`{{${k}}}`, 'g'), v);
+          }
+          const preview = document.getElementById('preview');
+          preview.innerHTML = '';
+          const iframe = document.createElement('iframe');
+          iframe.style.width = '100%'; iframe.style.height = '400px'; iframe.style.border = 'none';
+          preview.appendChild(iframe);
+          const doc = iframe.contentDocument || iframe.contentWindow.document;
+          doc.open(); doc.write(populated); doc.close();
+        });
+
+        // 6) Download HTML
+        document.getElementById('downloadHTML').addEventListener('click', () => {
+          const template = document.getElementById('templateEditor').value;
+          if (!template) { alert('Please enter or load a template first.'); return; }
+          const formData = new FormData(form);
+          let populated = template;
+          for (let [k, v] of formData.entries()) {
+            populated = populated.replace(new RegExp(`{{${k}}}`, 'g'), v);
+          }
+          const blob = new Blob([populated], {type: 'text/html'});
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          const name = formData.get('siteTitle') || 'template';
+          a.download = `${name}.html`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        });
+
+        // 7) On load: populate sample template & init counters
+        document.addEventListener('DOMContentLoaded', () => {
+          document.getElementById('templateEditor').value = sampleTemplate;
+          form.querySelectorAll('input[type="text"], textarea').forEach(el =>
+            el.dispatchEvent(new Event('input'))
+          );
+        });
+    </script>
+</body>
+</html>
