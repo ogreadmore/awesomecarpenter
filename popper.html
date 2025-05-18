@@ -21,7 +21,19 @@
     #preview { border:1px solid #ddd; padding:20px; min-height:400px; background:#fff; border-radius:4px; overflow:auto; }
     .action-buttons { margin-top:20px; }
     #templateContainer { margin-bottom:20px; }
+    /* add this to your existing <style> block */
+.container {
+  display: flex;
+  align-items: flex-start;    /* ensure children can stick independently */
+}
 
+/* make the preview pane stick once it hits 20px from the top of the viewport */
+.preview-section {
+  position: sticky;
+  top: 20px;                  /* adjust to match your header height/padding */
+  max-height: calc(100vh - 40px);
+  overflow: auto;             /* allow the preview itself to scroll internally */
+}
   </style>
 </head>
 <body>
@@ -57,65 +69,72 @@
   </div>
 
   <script>
-    // Sample template is up to you; leave empty or provide your own.
+    // Leave blank or load your own sample template
     const sampleTemplate = '';
 
-    // 1) Define every placeholder now used in your page:
+    // 1) Define every placeholder including new meta tags
     const fieldDefs = [
+      // Meta tags
+      { name:'siteTitle',        label:'Site Title',                   max:50 },
+      { name:'metaDescription',  label:'Meta Description',             max:155, type:'textarea' },
+      { name:'canonicalUrl',     label:'Canonical URL',                max:100 },
+      { name:'robots',           label:'Robots (e.g. index, follow)',   max:20 },
+      { name:'ogUrl',            label:'Open Graph URL',               max:100 },
+
       // contact/nav
-      { name:'phoneNumber',        label:'Phone (raw)',           max:20 },
-      { name:'prettyphoneNumber',  label:'Phone (pretty)',        max:30 },
+      { name:'phoneNumber',      label:'Phone (raw)',                  max:20 },
+      { name:'prettyphoneNumber',label:'Phone (pretty)',               max:30 },
       // header/body
-      { name:'bigIntro',           label:'Big Intro',             max:50 },
-      { name:'smallIntro',         label:'Small Intro',           max:90 },
-      { name:'topLocation',        label:'Top Location',          max:30 },
+      { name:'bigIntro',         label:'Big Intro',                    max:50 },
+      { name:'smallIntro',       label:'Small Intro',                  max:90 },
+      { name:'topLocation',      label:'Top Location',                 max:30 },
       // about
-      { name:'aboutHeader',        label:'About Section Header',  max:30 },
-      { name:'aboutTitle',         label:'About Section Title',   max:30 },
-      { name:'aboutText',          label:'About Text',            max:600, type:'textarea' },
+      { name:'aboutHeader',      label:'About Section Header',         max:30 },
+      { name:'aboutTitle',       label:'About Section Title',          max:30 },
+      { name:'aboutText',        label:'About Text',                   max:600, type:'textarea' },
       // team (4 items)
-      { name:'teamQuote',          label:'Team Quote',            max:70 },
-      { name:'teamName1',          label:'Team Name 1',           max:30 },
-      { name:'teamTitle1',         label:'Team Title 1',          max:30 },
-      { name:'teamName2',          label:'Team Name 2',           max:30 },
-      { name:'teamTitle2',         label:'Team Title 2',          max:30 },
-      { name:'teamName3',          label:'Team Name 3',           max:30 },
-      { name:'teamTitle3',         label:'Team Title 3',          max:30 },
-      { name:'teamName4',          label:'Team Name 4',           max:30 },
-      { name:'teamTitle4',         label:'Team Title 4',          max:30 },
+      { name:'teamQuote',        label:'Team Quote',                   max:70 },
+      { name:'teamName1',        label:'Team Name 1',                  max:30 },
+      { name:'teamTitle1',       label:'Team Title 1',                 max:30 },
+      { name:'teamName2',        label:'Team Name 2',                  max:30 },
+      { name:'teamTitle2',       label:'Team Title 2',                 max:30 },
+      { name:'teamName3',        label:'Team Name 3',                  max:30 },
+      { name:'teamTitle3',       label:'Team Title 3',                 max:30 },
+      { name:'teamName4',        label:'Team Name 4',                  max:30 },
+      { name:'teamTitle4',       label:'Team Title 4',                 max:30 },
       // services
-      { name:'bigService',         label:'Services Big Title',     max:45 },
-      { name:'smallService',       label:'Services Subtext',       max:85 },
+      { name:'bigService',       label:'Services Big Title',            max:45 },
+      { name:'smallService',     label:'Services Subtext',              max:85 },
       ...[1,2,3,4,5,6].map(i => ({
-        name:`serviceItem${i}`,    label:`Service Item ${i}`,   max:35
+        name:`serviceItem${i}`,  label:`Service Item ${i}`,          max:35
       })),
       // portfolio header
-      { name:'portfolioText',      label:'Portfolio Section Title',max:60 },
+      { name:'portfolioText',    label:'Portfolio Section Title',       max:60 },
       // portfolio items (6)
       ...[1,2,3,4,5,6].flatMap(i=>([
-        { name:`photo${i}Upper`,   label:`Portfolio ${i} Title`, max:40 },
-        { name:`photo${i}Lower`,   label:`Portfolio ${i} Subtitle`, max:40 },
+        { name:`photo${i}Upper`, label:`Portfolio ${i} Title`,        max:40 },
+        { name:`photo${i}Lower`, label:`Portfolio ${i} Subtitle`,     max:40 },
       ])),
       // testimonials (3)
-      { name:'testimonialsHeader', label:'Testimonials Header',    max:60 },
-      { name:'testimonial1',       label:'Testimonial 1',          max:260, type:'textarea' },
-      { name:'testimonial1Name',   label:'Testimonial 1 Name',     max:40 },
-      { name:'testimonial1Title',  label:'Testimonial 1 Title',    max:40 },
-      { name:'testimonial2',       label:'Testimonial 2',          max:260, type:'textarea' },
-      { name:'testimonial2Name',   label:'Testimonial 2 Name',     max:40 },
-      { name:'testimonial2Title',  label:'Testimonial 2 Title',    max:40 },
-      { name:'testimonial3',       label:'Testimonial 3',          max:260, type:'textarea' },
-      { name:'testimonial3Name',   label:'Testimonial 3 Name',     max:40 },
-      { name:'testimonial3Title',  label:'Testimonial 3 Title',    max:40 },
+      { name:'testimonialsHeader',label:'Testimonials Header',          max:60 },
+      { name:'testimonial1',     label:'Testimonial 1',                max:260, type:'textarea' },
+      { name:'testimonial1Name', label:'Testimonial 1 Name',           max:40 },
+      { name:'testimonial1Title',label:'Testimonial 1 Title',          max:40 },
+      { name:'testimonial2',     label:'Testimonial 2',                max:260, type:'textarea' },
+      { name:'testimonial2Name', label:'Testimonial 2 Name',           max:40 },
+      { name:'testimonial2Title',label:'Testimonial 2 Title',          max:40 },
+      { name:'testimonial3',     label:'Testimonial 3',                max:260, type:'textarea' },
+      { name:'testimonial3Name', label:'Testimonial 3 Name',           max:40 },
+      { name:'testimonial3Title',label:'Testimonial 3 Title',          max:40 },
       // contact section
-      { name:'contactText',        label:'Contact Section Text',   max:35 },
-      { name:'emailAddress',       label:'Email Address',          max:100 },
-      { name:'streetAddress',      label:'Street Address',         max:100 },
+      { name:'contactText',      label:'Contact Section Text',         max:35 },
+      { name:'emailAddress',     label:'Email Address',                max:100 },
+      { name:'streetAddress',    label:'Street Address',               max:100 },
       // footer
-      { name:'footerText',         label:'Footer Text',            max:175, type:'textarea' }
+      { name:'footerText',       label:'Footer Text',                  max:175, type:'textarea' }
     ];
 
-    // 2) Inject form fields
+    // 2) Inject form fields before Accent Color
     const form = document.getElementById('contentForm');
     fieldDefs.forEach(def => {
       const group = document.createElement('div');
@@ -140,12 +159,11 @@
       counter.className = 'char-counter';
       counter.innerHTML = `<span id="${def.name}Count">0</span>/${def.max}`;
       group.appendChild(counter);
-      // insert BEFORE the accentColor group
       const accentGroup = document.querySelector('#accentColor').closest('.form-group');
       form.insertBefore(group, accentGroup);
     });
 
-    // 3) Char counters
+    // 3) Char-counter logic
     form.querySelectorAll('input,textarea').forEach(input=>{
       input.addEventListener('input',()=>{
         const cnt = document.getElementById(input.id+'Count');
@@ -154,12 +172,12 @@
       });
     });
 
-    // 4) Sample load
+    // 4) Load sample template
     document.getElementById('loadSampleTemplate').addEventListener('click',()=>{
       document.getElementById('templateEditor').value = sampleTemplate;
     });
 
-    // 5) Preview
+    // 5) Update preview
     document.getElementById('updatePreview').addEventListener('click',()=>{
       const tpl = document.getElementById('templateEditor').value;
       if(!tpl){ alert('Load or paste a template first.'); return; }
@@ -176,23 +194,23 @@
       d.open(); d.write(out); d.close();
     });
 
-    // 6) Download
+    // 6) Download HTML
     document.getElementById('downloadHTML').addEventListener('click',()=>{
       const tpl = document.getElementById('templateEditor').value;
       if(!tpl){ alert('Load or paste a template first.'); return; }
       let out = tpl;
       new FormData(form).forEach((v,k)=> {
-        out= out.replace(new RegExp(`{{${k}}}`,'g'), v);
+        out = out.replace(new RegExp(`{{${k}}}`,'g'), v);
       });
-      const blob=new Blob([out],{type:'text/html'}),url=URL.createObjectURL(blob);
+      const blob=new Blob([out],{type:'text/html'}), url=URL.createObjectURL(blob);
       const a=document.createElement('a');
       a.href=url;
-      a.download=(new FormData(form).get('bigIntro')||'template')+'.html';
+      a.download=(new FormData(form).get('siteTitle')||'template')+'.html';
       document.body.appendChild(a); a.click(); document.body.removeChild(a);
       URL.revokeObjectURL(url);
     });
 
-    // 7) Init
+    // 7) Initialize counters
     document.addEventListener('DOMContentLoaded',()=>{
       if(sampleTemplate) document.getElementById('templateEditor').value=sampleTemplate;
       form.querySelectorAll('input,textarea').forEach(i=>i.dispatchEvent(new Event('input')));

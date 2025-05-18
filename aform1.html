@@ -285,7 +285,7 @@ display: none !important;
                             <li><a href="#about">About</a></li>
                             <li><a href="#services">Services</a></li>
                             <li><a href="#portfolio">Portfolio</a></li>
-                            <li><a href="#blog">Blog</a></li>
+                            <li><a href="#testimonials">Testimonials</a></li>
                             <li><a href="#contact">Contact</a></li>
                         </ul>
                         
@@ -350,8 +350,10 @@ display: none !important;
                                     </div>
                                 
                                     <div class="local-scroll mt-n10 wow fadeInUp wch-unset" data-wow-delay="0.7s" data-wow-duration="1.2s" data-wow-offset="0">
-                                        <a href="main-portfolio-masonry-3col.html" class="btn btn-mod btn-w btn-large btn-round btn-hover-anim ms-2 me-2 ms-sm-5 me-sm-5 align-middle mt-10"><span>View Portfolio</span></a>
+                                        <a href=#portfolio" class="btn btn-mod btn-w btn-large btn-round btn-hover-anim ms-2 me-2 ms-sm-5 me-sm-5 align-middle mt-10"><span>View Portfolio</span></a>
+                                        <!--
                                         <a href="https://www.youtube.com/watch?v=jTea_8Fk5Ns" class="link-hover-anim align-middle lightbox mfp-iframe mt-10" data-link-animate="y"><i class="icon-play size-13 me-1"></i> How it works?</a>
+                                   		-->
                                     </div>
                                         
                                 </div>
@@ -402,7 +404,7 @@ display: none !important;
                                 </div>
                                 <!-- End Decorative Dots -->
                                 
-                                <a href="#services" class="link-hover-anim underline align-middle" data-link-animate="y">Check out what we offer<i class="mi-arrow-right size-18"></i></a>
+                                <a href="#services" class="link-hover-anim underline align-middle" data-link-animate="y">Check out our services<i class="mi-arrow-right size-18"></i></a>
                                 
                             </div>
                             
@@ -815,7 +817,7 @@ display: none !important;
                 
                 
                 <!-- Testimonials Section -->
-                <section class="page-section pt-0 pb-0">
+                <section class="page-section pt-0 pb-0" id="testimonials">
                     <div class="container position-relative">
                         
                         <div class="pt-80 pb-80 pt-sm-70 pb-sm-70 px-4 bg-gray-light-1">
@@ -1006,7 +1008,7 @@ display: none !important;
                             <div class="col-md-6 mb-sm-50">
                                 
                                 <!-- Contact Form -->
-                                <form class="form contact-form pe-lg-5" id="contact_form">
+                                    <form action="https://formspree.io/f/mldbzkdb" method="POST"class="form contact-form pe-lg-5" id="contact_form">
                                     
                                     <div class="row">
                                         <div class="col-lg-6">
@@ -1040,9 +1042,15 @@ display: none !important;
                                             
                                             <!-- Send Button -->
                                             <div class="pt-20">
-                                                <button class="submit_btn btn btn-mod btn-large btn-round btn-hover-anim" id="submit_btn" aria-controls="result">
-                                                    <span>Send Message</span>
-                                                </button>
+                                                <button
+  type="submit"
+  class="submit_btn btn btn-mod btn-large btn-round btn-hover-anim"
+  id="submit_btn"
+  aria-controls="result"
+>
+  <span>Send Message</span>
+</button>
+
                                             </div>   
                                                                                      
                                         </div>
@@ -1069,7 +1077,7 @@ display: none !important;
                                 
                                 <!-- Google Map -->
                                 <div class="map-boxed">
-                                    <iframe src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d3071.5318265717196!2d-75.60465104752062!3d39.660249785873326!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c703f3cdadbfdb%3A0x80d20252268fc006!2zMjQ1IFF1aWdsZXkgQmx2ZCBzdGUgaywgTmV3IENhc3RsZSwgREUgMTk3MjAsINCh0L_QvtC70YPRh9C10L3RliDQqNGC0LDRgtC4INCQ0LzQtdGA0LjQutC4!5e0!3m2!1suk!2sua!4v1662469609333!5m2!1suk!2sua" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                                {{googleembedMap}}
                                 </div>
                                 <!-- End Google Map -->
                                 
@@ -1121,7 +1129,7 @@ display: none !important;
                                         <li><a href="#about">About</a></li>
                                         <li><a href="#services">Services</a></li>
                                         <li><a href="#portfolio">Portfolio</a></li>
-                                        <li><a href="#blog">Blog</a></li>
+                                        <li><a href="#testimonials">Testimonials</a></li>
                                         <li><a href="#contact">Contact</a></li>
                                     </ul>
                                     
@@ -1135,25 +1143,19 @@ display: none !important;
                                     
                                     <ul class="fw-menu clearlist">
                                         <li>
-                                            <a href="#" rel="noopener nofollow" target="_blank">
+                                            <a href="{{facebookUrl}}" rel="noopener nofollow" target="_blank">
                                                 <i class="fa-facebook"></i>
                                                 Facebook
                                             </a>
                                         </li>
                                         <li>
-                                            <a href="#" rel="noopener nofollow" target="_blank">
+                                            <a href="{{youtubeUrl}" rel="noopener nofollow" target="_blank">
                                                 <i class="fa-youtube"></i>
                                                 Youtube
                                             </a>
                                         </li>
                                         <li>
-                                            <a href="#" rel="noopener nofollow" target="_blank">
-                                                <i class="fa-pinterest"></i>
-                                                Pinterest
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="#" rel="noopener nofollow" target="_blank">
+                                            <a href="{{linkedinUrl}}" rel="noopener nofollow" target="_blank">
                                                 <i class="fa-linkedin"></i>
                                                 LinkedIn
                                             </a>
@@ -1164,17 +1166,19 @@ display: none !important;
                                 <!-- End Footer Widget -->
                                 
                                 <!-- Footer Widget -->
+                                
                                 <div class="col-sm-4 mt-30">
                                     
                                     <h3 class="fw-title">Legal & Press</h3>
                                     
                                     <ul class="fw-menu clearlist">                                     
-                                        <li><a href="#">Privacy Policy</a></li>
-                                        <li><a href="#">Terms & Conditions</a></li>
+                                       <!-- <li><a href="#">Privacy Policy</a></li>
+                                        <li><a href="#">Terms & Conditions</a></li> -->
                                         <li><a href="#">Presskit</a></li>
                                     </ul>
                                     
                                 </div>
+                                
                                 <!-- End Footer Widget -->                                
                                 
                             </div>                            
@@ -1186,12 +1190,12 @@ display: none !important;
                     <div class="row text-gray">
                         
                         <div class="col-md-4 col-lg-3">
-                            <b>© Bestlooker 2023.</b>
+                            <b>© 2025</b>
                         </div>
                         
                         <div class="col-md-7 offset-md-1 offset-lg-2 clearfix">
                             
-                            <b>Based in London, United Kingdom.</b>
+                            <b>Based in {{topLocation}}</b>
                             
                             <!-- Back to Top Link -->
                             <div class="local-scroll float-end mt-n20 mt-sm-10">
