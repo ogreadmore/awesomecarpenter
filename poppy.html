@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Static Site Generator</title>
+  <style>
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height:1.6; max-width:1200px; margin:0 auto; padding:20px; color:#333; }
+    h1,h2 { color:#2c3e50; }
+    .container { display:flex; gap:20px; margin-top:20px; }
+    .form-section, .preview-section { flex:1; padding:20px; background:#f8f9fa; border-radius:8px; box-shadow:0 2px 4px rgba(0,0,0,0.1); }
+    .form-group { margin-bottom:15px; }
+    label { display:block; margin-bottom:5px; font-weight:bold; }
+    input, textarea { width:100%; padding:8px; border:1px solid #ddd; border-radius:4px; font-size:16px; }
+    textarea { min-height:100px; resize:vertical; }
+    .char-counter { font-size:12px; color:#6c757d; text-align:right; margin-top:5px; }
+    .warning { color:#dc3545; }
+    button { background:#007bff; color:#fff; border:none; padding:10px 15px; border-radius:4px; cursor:pointer; font-size:16px; margin-right:10px; }
+    button:hover { background:#0069d9; }
+    #templateEditor { width:100%; height:200px; font-family:monospace; margin-bottom:20px; }
+    #preview { border:1px solid #ddd; padding:20px; min-height:400px; background:#fff; border-radius:4px; overflow:auto; }
+    .action-buttons { margin-top:20px; }
+    #templateContainer { margin-bottom:20px; }
+  </style>
+</head>
+<body>
+  <h1>Static Site Generator</h1>
+  <p>Paste your HTML template below and fill the form to populate placeholders.</p>
+
+  <div id="templateContainer">
+    <h2>Your Template</h2>
+    <textarea id="templateEditor" placeholder="Paste your HTML here with {{placeholders}}…"></textarea>
+    <button id="loadSampleTemplate">Load Sample Template</button>
+  </div>
+
+  <div class="container">
+    <div class="form-section">
+      <h2>Content Form</h2>
+      <form id="contentForm">
+        <!-- dynamic fields injected here -->
+        <!-- Accent Color stays last -->
+        <div class="form-group">
+          <label for="accentColor">Accent Color <code>{{accentColor}}</code></label>
+          <input type="color" id="accentColor" name="accentColor" value="#007bff" data-placeholder="accentColor">
+        </div>
+      </form>
+      <div class="action-buttons">
+        <button type="button" id="updatePreview">Update Preview</button>
+        <button type="button" id="downloadHTML">Download HTML</button>
+      </div>
+    </div>
+    <div class="preview-section">
+      <h2>Preview</h2>
+      <div id="preview"><p>Your preview will appear here.</p></div>
+    </div>
+  </div>
+
+  <script>
+    // Sample template is up to you; leave empty or provide your own.
+    const sampleTemplate = '';
+
+    // 1) Define every placeholder now used in your page:
+    const fieldDefs = [
+      // contact/nav
+      { name:'phoneNumber',        label:'Phone (raw)',           max:20 },
+      { name:'prettyphoneNumber',  label:'Phone (pretty)',        max:30 },
+      // header/body
+      { name:'bigIntro',           label:'Big Intro',             max:50 },
+      { name:'smallIntro',         label:'Small Intro',           max:90 },
+      { name:'topLocation',        label:'Top Location',          max:30 },
+      // about
+      { name:'aboutHeader',        label:'About Section Header',  max:30 },
+      { name:'aboutTitle',         label:'About Section Title',   max:30 },
+      { name:'aboutText',          label:'About Text',            max:600, type:'textarea' },
+      // team (4 items)
+      { name:'teamQuote',          label:'Team Quote',            max:70 },
+      { name:'teamName1',          label:'Team Name 1',           max:30 },
+      { name:'teamTitle1',         label:'Team Title 1',          max:30 },
+      { name:'teamName2',          label:'Team Name 2',           max:30 },
+      { name:'teamTitle2',         label:'Team Title 2',          max:30 },
+      { name:'teamName3',          label:'Team Name 3',           max:30 },
+      { name:'teamTitle3',         label:'Team Title 3',          max:30 },
+      { name:'teamName4',          label:'Team Name 4',           max:30 },
+      { name:'teamTitle4',         label:'Team Title 4',          max:30 },
+      // services
+      { name:'bigService',         label:'Services Big Title',     max:45 },
+      { name:'smallService',       label:'Services Subtext',       max:85 },
+      ...[1,2,3,4,5,6].map(i => ({
+        name:`serviceItem${i}`,    label:`Service Item ${i}`,   max:35
+      })),
+      // portfolio header
+      { name:'portfolioText',      label:'Portfolio Section Title',max:60 },
+      // portfolio items (6)
+      ...[1,2,3,4,5,6].flatMap(i=>([
+        { name:`photo${i}Upper`,   label:`Portfolio ${i} Title`, max:40 },
+        { name:`photo${i}Lower`,   label:`Portfolio ${i} Subtitle`, max:40 },
+      ])),
+      // testimonials (3)
+      { name:'testimonialsHeader', label:'Testimonials Header',    max:60 },
+      { name:'testimonial1',       label:'Testimonial 1',          max:260, type:'textarea' },
+      { name:'testimonial1Name',   label:'Testimonial 1 Name',     max:40 },
+      { name:'testimonial1Title',  label:'Testimonial 1 Title',    max:40 },
+      { name:'testimonial2',       label:'Testimonial 2',          max:260, type:'textarea' },
+      { name:'testimonial2Name',   label:'Testimonial 2 Name',     max:40 },
+      { name:'testimonial2Title',  label:'Testimonial 2 Title',    max:40 },
+      { name:'testimonial3',       label:'Testimonial 3',          max:260, type:'textarea' },
+      { name:'testimonial3Name',   label:'Testimonial 3 Name',     max:40 },
+      { name:'testimonial3Title',  label:'Testimonial 3 Title',    max:40 },
+      // contact section
+      { name:'contactText',        label:'Contact Section Text',   max:35 },
+      { name:'emailAddress',       label:'Email Address',          max:100 },
+      { name:'streetAddress',      label:'Street Address',         max:100 },
+      // footer
+      { name:'footerText',         label:'Footer Text',            max:175, type:'textarea' }
+    ];
+
+    // 2) Inject form fields
+    const form = document.getElementById('contentForm');
+    fieldDefs.forEach(def => {
+      const group = document.createElement('div');
+      group.className = 'form-group';
+      const label = document.createElement('label');
+      label.htmlFor = def.name;
+      label.innerHTML = `${def.label} <code>{{${def.name}}}</code> (max ${def.max})`;
+      group.appendChild(label);
+      let input;
+      if (def.type==='textarea') {
+        input = document.createElement('textarea');
+      } else {
+        input = document.createElement('input');
+        input.type = 'text';
+      }
+      input.id = def.name;
+      input.name = def.name;
+      input.maxLength = def.max;
+      input.setAttribute('data-placeholder', def.name);
+      group.appendChild(input);
+      const counter = document.createElement('div');
+      counter.className = 'char-counter';
+      counter.innerHTML = `<span id="${def.name}Count">0</span>/${def.max}`;
+      group.appendChild(counter);
+      // insert BEFORE the accentColor group
+      const accentGroup = document.querySelector('#accentColor').closest('.form-group');
+      form.insertBefore(group, accentGroup);
+    });
+
+    // 3) Char counters
+    form.querySelectorAll('input,textarea').forEach(input=>{
+      input.addEventListener('input',()=>{
+        const cnt = document.getElementById(input.id+'Count');
+        cnt.textContent = input.value.length;
+        cnt.classList.toggle('warning', input.value.length > input.maxLength*0.8);
+      });
+    });
+
+    // 4) Sample load
+    document.getElementById('loadSampleTemplate').addEventListener('click',()=>{
+      document.getElementById('templateEditor').value = sampleTemplate;
+    });
+
+    // 5) Preview
+    document.getElementById('updatePreview').addEventListener('click',()=>{
+      const tpl = document.getElementById('templateEditor').value;
+      if(!tpl){ alert('Load or paste a template first.'); return; }
+      let out = tpl;
+      new FormData(form).forEach((v,k)=> {
+        out = out.replace(new RegExp(`{{${k}}}`,'g'), v);
+      });
+      const p = document.getElementById('preview');
+      p.innerHTML = '';
+      const iframe = document.createElement('iframe');
+      iframe.style.width='100%'; iframe.style.height='400px'; iframe.style.border='none';
+      p.appendChild(iframe);
+      const d = iframe.contentDocument||iframe.contentWindow.document;
+      d.open(); d.write(out); d.close();
+    });
+
+    // 6) Download
+    document.getElementById('downloadHTML').addEventListener('click',()=>{
+      const tpl = document.getElementById('templateEditor').value;
+      if(!tpl){ alert('Load or paste a template first.'); return; }
+      let out = tpl;
+      new FormData(form).forEach((v,k)=> {
+        out= out.replace(new RegExp(`{{${k}}}`,'g'), v);
+      });
+      const blob=new Blob([out],{type:'text/html'}),url=URL.createObjectURL(blob);
+      const a=document.createElement('a');
+      a.href=url;
+      a.download=(new FormData(form).get('bigIntro')||'template')+'.html';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+
+    // 7) Init
+    document.addEventListener('DOMContentLoaded',()=>{
+      if(sampleTemplate) document.getElementById('templateEditor').value=sampleTemplate;
+      form.querySelectorAll('input,textarea').forEach(i=>i.dispatchEvent(new Event('input')));
+    });
+  </script>
+</body>
+</html>
