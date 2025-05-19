@@ -6,136 +6,133 @@
   <title>Static Site Generator</title>
   <style>
     /* RESET & BASE */
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+    * { box-sizing:border-box; margin:0; padding:0; }
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #f0f2f5;
-      color: #333;
+      font-family:'Segoe UI', sans-serif;
+      background:#f0f2f5;
+      color:#333;
     }
     header {
-      text-align: center;
-      padding: 40px 20px;      /* more space */
-      margin-bottom: 20px;
+      text-align:center;
+      padding:40px 20px;
+      margin-bottom:20px;
     }
-    h1 { 
-      font-size: 2.5rem;       /* slightly larger */
-      color: #2c3e50; 
-      margin-bottom: 10px;     /* spacing below title */
+    h1 {
+      font-size:2.5rem;
+      color:#2c3e50;
+      margin-bottom:10px;
     }
-    p.subtitle { 
-      font-size: 1.1rem;
-      color: #555; 
-      margin-bottom: 20px;     /* spacing below subtitle */
+    p.subtitle {
+      font-size:1.1rem;
+      color:#555;
+      margin-bottom:20px;
     }
 
     /* LAYOUT */
     .wrapper {
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      padding: 0 20px 20px;
+      display:flex;
+      justify-content:center;
+      gap:20px;
+      padding:0 20px 20px;
     }
     .form-section {
-      flex: 2;
-      max-width: 600px;
-      background: #fff;
-      border-radius: 12px;     /* rounder */
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      padding: 30px;           /* more padding */
-      overflow-y: auto;
-      max-height: calc(100vh - 160px);
+      flex:2;
+      max-width:600px;
+      background:#fff;
+      border-radius:12px;
+      box-shadow:0 2px 4px rgba(0,0,0,0.1);
+      padding:30px;
+      overflow-y:auto;
+      max-height:calc(100vh - 160px);
     }
     .form-section h2 {
-      margin-bottom: 20px;     /* more space around subheader */
-      font-size: 1.5rem;
-      color: #2c3e50;
+      margin-bottom:20px;
+      font-size:1.5rem;
+      color:#2c3e50;
     }
     .preview-section {
-      width: 375px;
-      position: sticky;
-      top: 80px;
-      background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      display: flex;
-      flex-direction: column;
-      max-height: calc(100vh - 160px);
-      overflow: hidden;
+      width:375px;
+      position:sticky;
+      top:80px;
+      background:#fff;
+      border-radius:12px;
+      box-shadow:0 2px 4px rgba(0,0,0,0.1);
+      display:flex;
+      flex-direction:column;
+      max-height:calc(100vh - 160px);
+      overflow:hidden;
     }
     .preview-header {
-      padding: 20px;           /* more space */
-      font-size: 1.25rem;
-      font-weight: bold;
-      color: #2c3e50;
-      border-bottom: 1px solid #eee;
-      background: #fafafa;
+      padding:20px;
+      font-size:1.25rem;
+      font-weight:bold;
+      color:#2c3e50;
+      border-bottom:1px solid #eee;
+      background:#fafafa;
     }
 
     /* FORM STYLES */
-    .form-group { margin-bottom: 20px; }
+    .form-group { margin-bottom:20px; }
     label {
-      display: block;
-      font-weight: bold;
-      margin-bottom: 8px;      /* more space */
-      color: #444;
+      display:block;
+      font-weight:bold;
+      margin-bottom:8px;
+      color:#444;
     }
     input, textarea {
-      width: 100%;
-      padding: 12px 15px;      /* larger fields */
-      border: 1px solid #ddd;
-      border-radius: 8px;      /* more rounded */
-      font-size: 1rem;
-      background: #fafafa;
+      width:100%;
+      padding:12px 15px;
+      border:1px solid #ddd;
+      border-radius:8px;
+      font-size:1rem;
+      background:#fafafa;
     }
-    textarea { resize: vertical; min-height: 100px; }
+    textarea { min-height:100px; resize:vertical; }
     .char-counter {
-      font-size: 0.85rem;
-      color: #666;
-      text-align: right;
-      margin-top: 4px;
+      font-size:0.85rem;
+      color:#666;
+      text-align:right;
+      margin-top:4px;
     }
-    .warning { color: #c00; }
+    .warning { color:#c00; }
 
     /* SUBMIT */
     .action-buttons {
-      text-align: right;
-      margin-top: 30px;
+      text-align:right;
+      margin-top:30px;
     }
     button.submit-button {
-      background: #007bff;
-      color: #fff;
-      border: none;
-      padding: 14px 28px;      /* larger button */
-      border-radius: 8px;      /* rounded */
-      font-size: 1.1rem;
-      cursor: pointer;
+      background:#007bff;
+      color:#fff;
+      border:none;
+      padding:14px 28px;
+      border-radius:8px;
+      font-size:1.1rem;
+      cursor:pointer;
     }
     button.submit-button:hover {
-      background: #0069d9;
+      background:#0069d9;
     }
 
     /* PREVIEW */
-    #preview {
-      flex: 1;
-      background: #fff;
-    }
+    #preview { flex:1; }
     #preview iframe {
-      width: 100%;
-      height: 100%;
-      border: 0;
+      width:100%;
+      height:100%;
+      border:0;
     }
 
     /* SMALL SCREENS */
-    @media (max-width: 992px) {
-      .wrapper { flex-direction: column; }
+    @media (max-width:992px) {
+      .wrapper { flex-direction:column; }
       .form-section, .preview-section {
-        max-height: none;
-        position: relative;
-        top: 0;
-        width: 100%;
-        margin-bottom: 20px;
+        max-height:none;
+        position:relative;
+        top:0;
+        width:100%;
+        margin-bottom:20px;
       }
-      .preview-section { height: 50vh; }
+      .preview-section { height:50vh; }
     }
   </style>
 </head>
@@ -149,7 +146,7 @@
     <div class="form-section">
       <h2>Content Form</h2>
       <form id="contentForm" action="https://formspree.io/f/xjvqvrvg" method="POST">
-        <!-- JS will inject all your fields here -->
+        <!-- JS injects fields here -->
         <div class="action-buttons">
           <button type="submit" class="submit-button">Submit</button>
         </div>
@@ -184,7 +181,7 @@
       }
     }
 
-    // All fields except accentColor, tags, metaDescription, canonicalUrl, ogUrl, phoneNumber, formSpree, googleembedMap
+    // fields (accentColor etc. removed)
     const fields = [
       { name:'siteTitle',       label:'Site Title',                    max:50 },
       { name:'bigIntro',        label:'Big Intro',                     max:50 },
@@ -231,11 +228,15 @@
       { name:'linkedinUrl',       label:'LinkedIn Page URL',              max:200 }
     ];
 
+    // map for label fallback
+    const labelMap = {};
+    fields.forEach(f=> labelMap[f.name]=f.label);
+
     function buildForm() {
       const form = document.getElementById('contentForm');
       const submitGroup = form.querySelector('.action-buttons');
 
-      fields.forEach(def => {
+      fields.forEach(def=>{
         const group = document.createElement('div');
         group.className = 'form-group';
 
@@ -245,27 +246,27 @@
         group.appendChild(lbl);
 
         let inp;
-        if (def.type === 'textarea') {
+        if(def.type==='textarea') {
           inp = document.createElement('textarea');
         } else {
           inp = document.createElement('input');
           inp.type = 'text';
         }
-        inp.id = inp.name = def.name;
-        inp.maxLength = def.max;
+        inp.id=inp.name=def.name;
+        inp.maxLength=def.max;
         group.appendChild(inp);
 
-        const counter = document.createElement('div');
-        counter.className = 'char-counter';
-        counter.innerHTML = `<span id="${def.name}Count">0</span>/${def.max}`;
-        group.appendChild(counter);
+        const ctr = document.createElement('div');
+        ctr.className='char-counter';
+        ctr.innerHTML=`<span id="${def.name}Count">0</span>/${def.max}`;
+        group.appendChild(ctr);
 
         form.insertBefore(group, submitGroup);
 
-        inp.addEventListener('input', () => {
-          const cnt = document.getElementById(def.name + 'Count');
-          cnt.textContent = inp.value.length;
-          cnt.classList.toggle('warning', inp.value.length > def.max * 0.8);
+        inp.addEventListener('input',()=>{
+          const c = document.getElementById(def.name+'Count');
+          c.textContent = inp.value.length;
+          c.classList.toggle('warning', inp.value.length>def.max*.8);
           renderPreview();
         });
       });
@@ -277,12 +278,16 @@
         /<head(\b[^>]*)>/i,
         `<head$1><style>body{color:#333!important}</style>`
       );
-      html = html.replace(/{{\s*([\w]+)\s*}}/g, (_,key) => data.get(key) || '');
+      html = html.replace(/{{\s*([^}]+)\s*}}/g, (_,key)=>{
+        const v = data.get(key);
+        if(v && v.trim()!=='') return v;
+        return labelMap[key] || '';
+      });
       document.getElementById('preview').innerHTML =
         `<iframe srcdoc="${html.replace(/"/g,'&quot;')}"></iframe>`;
     }
 
-    (async () => {
+    (async()=>{
       await loadTemplate();
       buildForm();
       renderPreview();
