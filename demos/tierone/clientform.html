@@ -9,21 +9,55 @@
     h1,h2 { color:#2c3e50; }
     .container { display:flex; gap:20px; }
     .form-section, .preview-section {
-      flex:1; background:#f8f9fa; padding:20px; border-radius:8px; box-shadow:0 2px 4px rgba(0,0,0,0.1);
+      flex:1;
+      background:#f8f9fa;
+      padding:20px;
+      border-radius:8px;
+      box-shadow:0 2px 4px rgba(0,0,0,0.1);
     }
     .form-group { margin-bottom:15px; }
-    label { font-weight:bold; display:block; margin-bottom:5px; }
+    label { display:block; font-weight:bold; margin-bottom:5px; }
     input, textarea { width:100%; padding:8px; border:1px solid #ddd; border-radius:4px; font-size:16px; }
     textarea { min-height:80px; resize:vertical; }
     .char-counter { font-size:12px; color:#666; text-align:right; }
     .warning { color:#c00; }
-    .responsive-controls { margin-bottom:15px; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
-    .width-slider, .height-slider { flex:1; min-width:150px; }
-    .width-display, .height-display { width:60px; text-align:center; font-family:monospace; }
-    .preset-buttons button { margin-right:5px; padding:4px 8px; font-size:12px; }
-    button { background:#007bff; color:#fff; border:none; padding:10px 15px; border-radius:4px; cursor:pointer; }
-    button:hover { background:#0069d9; }
-    #preview { border:1px solid #ddd; background:#fff; resize:both; overflow:auto; min-width:300px; min-height:400px; }
+    .responsive-controls { margin-bottom:15px; }
+    .preset-buttons button {
+      background:#007bff;
+      color:#fff;
+      border:none;
+      padding:6px 12px;
+      border-radius:4px;
+      cursor:pointer;
+      font-size:14px;
+      margin-right:8px;
+    }
+    .preset-buttons button:hover { background:#0069d9; }
+    .preview-section {
+      display:flex;
+      flex-direction:column;
+      flex:1;
+    }
+    #preview {
+      flex:1;
+      border:1px solid #ddd;
+      background:#fff;
+      overflow:auto;
+    }
+    .action-buttons { margin-top:20px; }
+    .submit-button {
+      background:#007bff;
+      color:#fff;
+      border:none;
+      padding:10px 15px;
+      border-radius:4px;
+      cursor:pointer;
+      font-size:16px;
+    }
+    .submit-button:hover { background:#0069d9; }
+    @media (max-width:992px) {
+      .container { flex-direction:column; }
+    }
   </style>
 </head>
 <body>
@@ -34,13 +68,10 @@
     <div class="form-section">
       <h2>Content Form</h2>
       <form id="contentForm" action="https://formspree.io/f/xjvqvrvg" method="POST">
-        <!-- Accent color is included manually; everything else is injected by JS -->
-        <div class="form-group">
-          <label for="accentColor">Accent Color <code>{{accentColor}}</code></label>
-          <input type="color" id="accentColor" name="accentColor" value="#007bff" maxlength="7">
-          <div class="char-counter"><span id="accentColorCount">0</span>/7</div>
+        <!-- fields are injected by JS -->
+        <div class="action-buttons">
+          <button type="submit" class="submit-button">Submit</button>
         </div>
-        <button type="submit">Submit</button>
       </form>
     </div>
 
@@ -48,81 +79,108 @@
       <h2>Preview</h2>
       <div class="responsive-controls">
         <div class="preset-buttons">
-          <button data-width="375">Mobile</button>
-          <button data-width="768">Tablet</button>
-          <button data-width="1024">Laptop</button>
-          <button data-width="1440">Desktop</button>
+          <button class="preset-button" data-width="375">Mobile</button>
+          <button class="preset-button" data-width="768">Tablet</button>
         </div>
-        <input type="range" id="widthSlider" class="width-slider" min="320" max="1440" value="880">
-        <div class="width-display" id="widthDisplay">880px</div>
-        <input type="range" id="heightSlider" class="height-slider" min="400" max="1200" value="600">
-        <div class="height-display" id="heightDisplay">600px</div>
       </div>
       <div id="preview"><p>Loading preview…</p></div>
     </div>
   </div>
 
   <script>
-    // Fallback sample if template.html won't load
     const sampleTemplate = `
 <!DOCTYPE html>
 <html><head><meta charset="utf-8"><title>{{siteTitle}}</title></head>
-<body><h1 style="color:{{accentColor}}">{{bigIntro}}</h1><p>{{smallIntro}}</p></body>
+<body><h1>{{bigIntro}}</h1><p>{{smallIntro}}</p><p>{{topLocation}}</p></body>
 </html>`;
 
-    let template = '';
+    let template = '', currentWidth = 375;
+
     async function loadTemplate() {
       try {
-        const res = await fetch('template.html');
-        template = res.ok ? await res.text() : sampleTemplate;
+        const r = await fetch('template.html');
+        template = r.ok ? await r.text() : sampleTemplate;
       } catch {
         template = sampleTemplate;
       }
     }
 
-    // Define your real placeholders here
-    const placeholders = [
-      'siteTitle','metaDescription','canonicalUrl','ogUrl',
-      'bigIntro','smallIntro','aboutHeader','aboutText',
-      'footerText'
-      // add yours...
+    const fields = [
+      { name:'siteTitle',       label:'Site Title',                    max:50 },
+      { name:'bigIntro',        label:'Big Intro',                     max:50 },
+      { name:'smallIntro',      label:'Small Intro',                   max:160 },
+      { name:'topLocation',     label:'Location (Denver, Colorado)',   max:30 },
+      { name:'aboutHeader',     label:'About Section Header',          max:45 },
+      { name:'aboutTitle',      label:'About Section Title',           max:60 },
+      { name:'aboutText',       label:'About Text',                    max:600, type:'textarea' },
+      { name:'teamQuote',       label:'Team Quote',                    max:105 },
+      { name:'teamName1',       label:'Team Name 1',                   max:30 },
+      { name:'teamTitle1',      label:'Team Title 1',                  max:30 },
+      { name:'teamName2',       label:'Team Name 2',                   max:30 },
+      { name:'teamTitle2',      label:'Team Title 2',                  max:30 },
+      { name:'teamName3',       label:'Team Name 3',                   max:30 },
+      { name:'teamTitle3',      label:'Team Title 3',                  max:30 },
+      { name:'teamName4',       label:'Team Name 4',                   max:30 },
+      { name:'teamTitle4',      label:'Team Title 4',                  max:30 },
+      { name:'bigService',      label:'Services Big Title',            max:45 },
+      { name:'smallService',    label:'Services Subtext',              max:235 },
+      ...[1,2,3,4,5,6].map(i=>({
+        name:`serviceItem${i}`, label:`Service List Item ${i}`,      max:35
+      })),
+      { name:'portfolioText',   label:'Portfolio Section Title',       max:60 },
+      ...[1,2,3,4,5,6].flatMap(i=>[
+        { name:`photo${i}Upper`,label:`Portfolio ${i} Title`,         max:40 },
+        { name:`photo${i}Lower`,label:`Portfolio ${i} Subtitle`,      max:40 }
+      ]),
+      { name:'testimonialsHeader', label:'Testimonials Header',        max:60 },
+      { name:'testimonial1',      label:'Testimonial 1',               max:320, type:'textarea' },
+      { name:'testimonial1Name',  label:'Testimonial 1 Name',          max:40 },
+      { name:'testimonial1Title', label:'Testimonial 1 Title',         max:50 },
+      { name:'testimonial2',      label:'Testimonial 2',               max:320, type:'textarea' },
+      { name:'testimonial2Name',  label:'Testimonial 2 Name',          max:40 },
+      { name:'testimonial2Title', label:'Testimonial 2 Title',         max:50 },
+      { name:'testimonial3',      label:'Testimonial 3',               max:320, type:'textarea' },
+      { name:'testimonial3Name',  label:'Testimonial 3 Name',          max:40 },
+      { name:'testimonial3Title', label:'Testimonial 3 Title',         max:50 },
+      { name:'contactText',       label:'Contact Section Text',        max:45 },
+      { name:'emailAddress',      label:'Contact Email Address',       max:100 },
+      { name:'streetAddress',     label:'Street Address',              max:100 },
+      { name:'footerText',        label:'Footer Text',                 max:175, type:'textarea' },
+      { name:'facebookUrl',       label:'Facebook Page URL',           max:200 },
+      { name:'youtubeUrl',        label:'YouTube Page URL',            max:200 },
+      { name:'linkedinUrl',       label:'LinkedIn Page URL',           max:200 }
     ];
 
     function buildForm() {
       const form = document.getElementById('contentForm');
-      const accentEl = document.getElementById('accentColor').closest('.form-group');
-
-      placeholders.forEach(name => {
-        const group = document.createElement('div');
-        group.className = 'form-group';
+      const submitBtn = form.querySelector('.action-buttons');
+      fields.forEach(def => {
+        const g = document.createElement('div');
+        g.className = 'form-group';
         const lbl = document.createElement('label');
-        lbl.htmlFor = name;
-        lbl.innerHTML = `${name} <code>{{${name}}}</code>`;
-        group.appendChild(lbl);
+        lbl.htmlFor = def.name;
+        lbl.textContent = `${def.label} (max ${def.max})`;
+        g.appendChild(lbl);
 
-        const inp = document.createElement(
-          name.toLowerCase().includes('description') || name==='aboutText' || name==='footerText'
-            ? 'textarea' : 'input'
-        );
-        inp.id = inp.name = name;
-        inp.maxLength =  name==='metaDescription' ? 155 : 50;
-        group.appendChild(inp);
+        const inp = def.type==='textarea'
+          ? document.createElement('textarea')
+          : document.createElement('input');
+        if (inp.tagName==='INPUT') inp.type='text';
+        inp.id=inp.name=def.name;
+        inp.maxLength=def.max;
+        g.appendChild(inp);
 
-        const counter = document.createElement('div');
-        counter.className = 'char-counter';
-        counter.innerHTML = `<span id="${name}Count">0</span>/`+inp.maxLength;
-        group.appendChild(counter);
+        const ctr = document.createElement('div');
+        ctr.className='char-counter';
+        ctr.innerHTML=`<span id="${def.name}Count">0</span>/${def.max}`;
+        g.appendChild(ctr);
 
-        form.insertBefore(group, accentEl);
-      });
+        form.insertBefore(g, submitBtn);
 
-      form.querySelectorAll('input,textarea').forEach(el => {
-        el.addEventListener('input', () => {
-          const cnt = document.getElementById(el.id+'Count');
-          if (cnt) {
-            cnt.textContent = el.value.length;
-            cnt.classList.toggle('warning', el.value.length > el.maxLength * .8);
-          }
+        inp.addEventListener('input',()=>{
+          const c = document.getElementById(def.name+'Count');
+          c.textContent = inp.value.length;
+          c.classList.toggle('warning', inp.value.length>def.max*.8);
           renderPreview();
         });
       });
@@ -134,28 +192,20 @@
         /<head(\b[^>]*)>/i,
         `<head$1><style>body{color:#333!important}</style>`
       );
-      html = html.replace(/{{\s*([\w]+)\s*}}/g, (_,key)=>(data.get(key)||''));
-      const iframe = `<iframe style="width:100%;height:100%;border:0" srcdoc="${html.replace(/"/g,'&quot;')}"></iframe>`;
-      document.getElementById('preview').innerHTML = iframe;
-      adjustPreviewDims();
+      html = html.replace(/{{\s*([\w]+)\s*}}/g,(_,k)=>(data.get(k)||''));
+      document.getElementById('preview').innerHTML =
+        `<iframe style="width:100%;height:100%;border:0" srcdoc="${html.replace(/"/g,'&quot;')}"></iframe>`;
+      adjustWidth();
     }
 
-    function adjustPreviewDims() {
-      const w = +document.getElementById('widthSlider').value;
-      const h = +document.getElementById('heightSlider').value;
-      document.getElementById('widthDisplay').textContent = w+'px';
-      document.getElementById('heightDisplay').textContent = h+'px';
-      const p = document.getElementById('preview');
-      p.style.width = w+'px';
-      p.style.height = h+'px';
+    function adjustWidth() {
+      document.getElementById('preview').style.width = currentWidth+'px';
     }
 
     function setupResponsive() {
-      document.getElementById('widthSlider').addEventListener('input', renderPreview);
-      document.getElementById('heightSlider').addEventListener('input', renderPreview);
-      document.querySelectorAll('.preset-buttons button').forEach(btn=>{
-        btn.addEventListener('click', ()=>{
-          document.getElementById('widthSlider').value = btn.dataset.width;
+      document.querySelectorAll('.preset-button').forEach(btn=>{
+        btn.addEventListener('click',()=>{
+          currentWidth = +btn.dataset.width;
           renderPreview();
         });
       });
