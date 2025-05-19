@@ -5,15 +5,28 @@
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Static Site Generator (Formspree)</title>
   <style>
-    body { font-family:Segoe UI, sans-serif; margin:20px auto; max-width:1200px; color:#333; }
-    h1,h2 { color:#2c3e50; }
+    body { font-family:Segoe UI, sans-serif; margin:0; padding:20px; max-width:1200px; color:#333; }
+    h1,h2 { color:#2c3e50; margin-top:0; }
     .container { display:flex; gap:20px; }
-    .form-section, .preview-section {
+    .form-section {
       flex:1;
       background:#f8f9fa;
       padding:20px;
       border-radius:8px;
       box-shadow:0 2px 4px rgba(0,0,0,0.1);
+      overflow:auto;
+      max-height:100vh;
+    }
+    .preview-section {
+      width:375px;
+      position:sticky;
+      top:20px;
+      height:calc(100vh - 40px);
+      background:#f8f9fa;
+      border-radius:8px;
+      box-shadow:0 2px 4px rgba(0,0,0,0.1);
+      display:flex;
+      flex-direction:column;
     }
     .form-group { margin-bottom:15px; }
     label { display:block; font-weight:bold; margin-bottom:5px; }
@@ -21,23 +34,6 @@
     textarea { min-height:80px; resize:vertical; }
     .char-counter { font-size:12px; color:#666; text-align:right; }
     .warning { color:#c00; }
-    .responsive-controls { margin-bottom:15px; }
-    .preset-buttons button {
-      background:#007bff;
-      color:#fff;
-      border:none;
-      padding:6px 12px;
-      border-radius:4px;
-      cursor:pointer;
-      font-size:14px;
-      margin-right:8px;
-    }
-    .preset-buttons button:hover { background:#0069d9; }
-    .preview-section {
-      display:flex;
-      flex-direction:column;
-      flex:1;
-    }
     #preview {
       flex:1;
       border:1px solid #ddd;
@@ -57,6 +53,8 @@
     .submit-button:hover { background:#0069d9; }
     @media (max-width:992px) {
       .container { flex-direction:column; }
+      .preview-section { width:100%; height:50vh; top:0; }
+      .form-section { max-height:none; }
     }
   </style>
 </head>
@@ -77,12 +75,6 @@
 
     <div class="preview-section">
       <h2>Preview</h2>
-      <div class="responsive-controls">
-        <div class="preset-buttons">
-          <button class="preset-button" data-width="375">Mobile</button>
-          <button class="preset-button" data-width="768">Tablet</button>
-        </div>
-      </div>
       <div id="preview"><p>Loading preview…</p></div>
     </div>
   </div>
@@ -94,67 +86,67 @@
 <body><h1>{{bigIntro}}</h1><p>{{smallIntro}}</p><p>{{topLocation}}</p></body>
 </html>`;
 
-    let template = '', currentWidth = 375;
+    let template = '';
 
     async function loadTemplate() {
       try {
-        const r = await fetch('template.html');
-        template = r.ok ? await r.text() : sampleTemplate;
+        const res = await fetch('template.html');
+        template = res.ok ? await res.text() : sampleTemplate;
       } catch {
         template = sampleTemplate;
       }
     }
 
     const fields = [
-      { name:'siteTitle',       label:'Site Title',                    max:50 },
-      { name:'bigIntro',        label:'Big Intro',                     max:50 },
-      { name:'smallIntro',      label:'Small Intro',                   max:160 },
-      { name:'topLocation',     label:'Location (Denver, Colorado)',   max:30 },
-      { name:'aboutHeader',     label:'About Section Header',          max:45 },
-      { name:'aboutTitle',      label:'About Section Title',           max:60 },
-      { name:'aboutText',       label:'About Text',                    max:600, type:'textarea' },
-      { name:'teamQuote',       label:'Team Quote',                    max:105 },
-      { name:'teamName1',       label:'Team Name 1',                   max:30 },
-      { name:'teamTitle1',      label:'Team Title 1',                  max:30 },
-      { name:'teamName2',       label:'Team Name 2',                   max:30 },
-      { name:'teamTitle2',      label:'Team Title 2',                  max:30 },
-      { name:'teamName3',       label:'Team Name 3',                   max:30 },
-      { name:'teamTitle3',      label:'Team Title 3',                  max:30 },
-      { name:'teamName4',       label:'Team Name 4',                   max:30 },
-      { name:'teamTitle4',      label:'Team Title 4',                  max:30 },
-      { name:'bigService',      label:'Services Big Title',            max:45 },
-      { name:'smallService',    label:'Services Subtext',              max:235 },
+      { name:'siteTitle',       label:'Site Title',                  max:50 },
+      { name:'bigIntro',        label:'Big Intro',                   max:50 },
+      { name:'smallIntro',      label:'Small Intro',                 max:160 },
+      { name:'topLocation',     label:'Location (Denver, Colorado)', max:30 },
+      { name:'aboutHeader',     label:'About Section Header',        max:45 },
+      { name:'aboutTitle',      label:'About Section Title',         max:60 },
+      { name:'aboutText',       label:'About Text',                  max:600, type:'textarea' },
+      { name:'teamQuote',       label:'Team Quote',                  max:105 },
+      { name:'teamName1',       label:'Team Name 1',                 max:30 },
+      { name:'teamTitle1',      label:'Team Title 1',                max:30 },
+      { name:'teamName2',       label:'Team Name 2',                 max:30 },
+      { name:'teamTitle2',      label:'Team Title 2',                max:30 },
+      { name:'teamName3',       label:'Team Name 3',                 max:30 },
+      { name:'teamTitle3',      label:'Team Title 3',                max:30 },
+      { name:'teamName4',       label:'Team Name 4',                 max:30 },
+      { name:'teamTitle4',      label:'Team Title 4',                max:30 },
+      { name:'bigService',      label:'Services Big Title',          max:45 },
+      { name:'smallService',    label:'Services Subtext',            max:235 },
       ...[1,2,3,4,5,6].map(i=>({
-        name:`serviceItem${i}`, label:`Service List Item ${i}`,      max:35
+        name:`serviceItem${i}`, label:`Service List Item ${i}`,    max:35
       })),
-      { name:'portfolioText',   label:'Portfolio Section Title',       max:60 },
+      { name:'portfolioText',   label:'Portfolio Section Title',     max:60 },
       ...[1,2,3,4,5,6].flatMap(i=>[
-        { name:`photo${i}Upper`,label:`Portfolio ${i} Title`,         max:40 },
-        { name:`photo${i}Lower`,label:`Portfolio ${i} Subtitle`,      max:40 }
+        { name:`photo${i}Upper`,label:`Portfolio ${i} Title`,       max:40 },
+        { name:`photo${i}Lower`,label:`Portfolio ${i} Subtitle`,    max:40 }
       ]),
-      { name:'testimonialsHeader', label:'Testimonials Header',        max:60 },
-      { name:'testimonial1',      label:'Testimonial 1',               max:320, type:'textarea' },
-      { name:'testimonial1Name',  label:'Testimonial 1 Name',          max:40 },
-      { name:'testimonial1Title', label:'Testimonial 1 Title',         max:50 },
-      { name:'testimonial2',      label:'Testimonial 2',               max:320, type:'textarea' },
-      { name:'testimonial2Name',  label:'Testimonial 2 Name',          max:40 },
-      { name:'testimonial2Title', label:'Testimonial 2 Title',         max:50 },
-      { name:'testimonial3',      label:'Testimonial 3',               max:320, type:'textarea' },
-      { name:'testimonial3Name',  label:'Testimonial 3 Name',          max:40 },
-      { name:'testimonial3Title', label:'Testimonial 3 Title',         max:50 },
-      { name:'contactText',       label:'Contact Section Text',        max:45 },
-      { name:'emailAddress',      label:'Contact Email Address',       max:100 },
-      { name:'streetAddress',     label:'Street Address',              max:100 },
-      { name:'footerText',        label:'Footer Text',                 max:175, type:'textarea' },
-      { name:'facebookUrl',       label:'Facebook Page URL',           max:200 },
-      { name:'youtubeUrl',        label:'YouTube Page URL',            max:200 },
-      { name:'linkedinUrl',       label:'LinkedIn Page URL',           max:200 }
+      { name:'testimonialsHeader', label:'Testimonials Header',      max:60 },
+      { name:'testimonial1',      label:'Testimonial 1',             max:320, type:'textarea' },
+      { name:'testimonial1Name',  label:'Testimonial 1 Name',        max:40 },
+      { name:'testimonial1Title', label:'Testimonial 1 Title',       max:50 },
+      { name:'testimonial2',      label:'Testimonial 2',             max:320, type:'textarea' },
+      { name:'testimonial2Name',  label:'Testimonial 2 Name',        max:40 },
+      { name:'testimonial2Title', label:'Testimonial 2 Title',       max:50 },
+      { name:'testimonial3',      label:'Testimonial 3',             max:320, type:'textarea' },
+      { name:'testimonial3Name',  label:'Testimonial 3 Name',        max:40 },
+      { name:'testimonial3Title', label:'Testimonial 3 Title',       max:50 },
+      { name:'contactText',       label:'Contact Section Text',      max:45 },
+      { name:'emailAddress',      label:'Contact Email Address',     max:100 },
+      { name:'streetAddress',     label:'Street Address',            max:100 },
+      { name:'footerText',        label:'Footer Text',               max:175, type:'textarea' },
+      { name:'facebookUrl',       label:'Facebook Page URL',         max:200 },
+      { name:'youtubeUrl',        label:'YouTube Page URL',          max:200 },
+      { name:'linkedinUrl',       label:'LinkedIn Page URL',         max:200 }
     ];
 
     function buildForm() {
       const form = document.getElementById('contentForm');
-      const submitBtn = form.querySelector('.action-buttons');
-      fields.forEach(def => {
+      const submitGroup = form.querySelector('.action-buttons');
+      fields.forEach(def=>{
         const g = document.createElement('div');
         g.className = 'form-group';
         const lbl = document.createElement('label');
@@ -166,21 +158,21 @@
           ? document.createElement('textarea')
           : document.createElement('input');
         if (inp.tagName==='INPUT') inp.type='text';
-        inp.id=inp.name=def.name;
-        inp.maxLength=def.max;
+        inp.id = inp.name = def.name;
+        inp.maxLength = def.max;
         g.appendChild(inp);
 
         const ctr = document.createElement('div');
-        ctr.className='char-counter';
-        ctr.innerHTML=`<span id="${def.name}Count">0</span>/${def.max}`;
+        ctr.className = 'char-counter';
+        ctr.innerHTML = `<span id="${def.name}Count">0</span>/${def.max}`;
         g.appendChild(ctr);
 
-        form.insertBefore(g, submitBtn);
+        form.insertBefore(g, submitGroup);
 
         inp.addEventListener('input',()=>{
           const c = document.getElementById(def.name+'Count');
           c.textContent = inp.value.length;
-          c.classList.toggle('warning', inp.value.length>def.max*.8);
+          c.classList.toggle('warning', inp.value.length > def.max * .8);
           renderPreview();
         });
       });
@@ -195,26 +187,11 @@
       html = html.replace(/{{\s*([\w]+)\s*}}/g,(_,k)=>(data.get(k)||''));
       document.getElementById('preview').innerHTML =
         `<iframe style="width:100%;height:100%;border:0" srcdoc="${html.replace(/"/g,'&quot;')}"></iframe>`;
-      adjustWidth();
-    }
-
-    function adjustWidth() {
-      document.getElementById('preview').style.width = currentWidth+'px';
-    }
-
-    function setupResponsive() {
-      document.querySelectorAll('.preset-button').forEach(btn=>{
-        btn.addEventListener('click',()=>{
-          currentWidth = +btn.dataset.width;
-          renderPreview();
-        });
-      });
     }
 
     (async()=>{
       await loadTemplate();
       buildForm();
-      setupResponsive();
       renderPreview();
     })();
   </script>
