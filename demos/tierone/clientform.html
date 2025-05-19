@@ -146,7 +146,7 @@
     <div class="form-section">
       <h2>Content Form</h2>
       <form id="contentForm" action="https://formspree.io/f/xjvqvrvg" method="POST">
-        <!-- JS injects fields here -->
+        <!-- JS will inject all your fields here -->
         <div class="action-buttons">
           <button type="submit" class="submit-button">Submit</button>
         </div>
@@ -181,12 +181,13 @@
       }
     }
 
-    // fields (accentColor etc. removed)
+    // All fields, with prettyphoneNumber re-added
     const fields = [
       { name:'siteTitle',       label:'Site Title',                    max:50 },
       { name:'bigIntro',        label:'Big Intro',                     max:50 },
       { name:'smallIntro',      label:'Small Intro',                   max:160 },
       { name:'topLocation',     label:'Location (Denver, Colorado)',   max:30 },
+      { name:'prettyphoneNumber', label:'Phone Number (Format: (555) 555-5555)', max:30 },
       { name:'aboutHeader',     label:'About Section Header',          max:45 },
       { name:'aboutTitle',      label:'About Section Title',           max:60 },
       { name:'aboutText',       label:'About Text',                    max:600, type:'textarea' },
@@ -230,13 +231,13 @@
 
     // map for label fallback
     const labelMap = {};
-    fields.forEach(f=> labelMap[f.name]=f.label);
+    fields.forEach(f => labelMap[f.name] = f.label);
 
     function buildForm() {
       const form = document.getElementById('contentForm');
       const submitGroup = form.querySelector('.action-buttons');
 
-      fields.forEach(def=>{
+      fields.forEach(def => {
         const group = document.createElement('div');
         group.className = 'form-group';
 
@@ -246,27 +247,27 @@
         group.appendChild(lbl);
 
         let inp;
-        if(def.type==='textarea') {
+        if (def.type === 'textarea') {
           inp = document.createElement('textarea');
         } else {
           inp = document.createElement('input');
           inp.type = 'text';
         }
-        inp.id=inp.name=def.name;
-        inp.maxLength=def.max;
+        inp.id = inp.name = def.name;
+        inp.maxLength = def.max;
         group.appendChild(inp);
 
-        const ctr = document.createElement('div');
-        ctr.className='char-counter';
-        ctr.innerHTML=`<span id="${def.name}Count">0</span>/${def.max}`;
-        group.appendChild(ctr);
+        const counter = document.createElement('div');
+        counter.className = 'char-counter';
+        counter.innerHTML = `<span id="${def.name}Count">0</span>/${def.max}`;
+        group.appendChild(counter);
 
         form.insertBefore(group, submitGroup);
 
-        inp.addEventListener('input',()=>{
-          const c = document.getElementById(def.name+'Count');
-          c.textContent = inp.value.length;
-          c.classList.toggle('warning', inp.value.length>def.max*.8);
+        inp.addEventListener('input', () => {
+          const cnt = document.getElementById(def.name + 'Count');
+          cnt.textContent = inp.value.length;
+          cnt.classList.toggle('warning', inp.value.length > def.max * 0.8);
           renderPreview();
         });
       });
@@ -278,16 +279,15 @@
         /<head(\b[^>]*)>/i,
         `<head$1><style>body{color:#333!important}</style>`
       );
-      html = html.replace(/{{\s*([^}]+)\s*}}/g, (_,key)=>{
+      html = html.replace(/{{\s*([^}]+)\s*}}/g, (_, key) => {
         const v = data.get(key);
-        if(v && v.trim()!=='') return v;
-        return labelMap[key] || '';
+        return v && v.trim() !== '' ? v : (labelMap[key] || '');
       });
       document.getElementById('preview').innerHTML =
         `<iframe srcdoc="${html.replace(/"/g,'&quot;')}"></iframe>`;
     }
 
-    (async()=>{
+    (async () => {
       await loadTemplate();
       buildForm();
       renderPreview();
