@@ -40,7 +40,7 @@
     <div class="form-section">
       <h2>Content Form</h2>
       <form id="contentForm" action="https://formspree.io/f/xjvqvrvg" method="POST">
-        <!-- fields get injected here by JS -->
+        <!-- Accent Color always last -->
         <div class="form-group">
           <label for="accentColor">Accent Color <code>{{accentColor}}</code></label>
           <input type="color" id="accentColor" name="accentColor" value="#007bff" maxlength="7">
@@ -73,6 +73,7 @@
 
   <script>
     let template = '';
+
     // 1) Load the HTML template from template.html
     async function loadTemplate() {
       try {
@@ -83,58 +84,59 @@
       }
     }
 
-    // 2) Define your fields exactly as before
+    // 2) Define your fields (including textText)
     const fieldDefs = [
-      { name:'siteTitle',         label:'Site Title',                    max:50 },
-      { name:'metaDescription',   label:'Meta Description',              max:155, type:'textarea' },
-      { name:'canonicalUrl',      label:'Canonical URL',                 max:100 },
-      { name:'ogUrl',             label:'Open Graph URL',                max:100 },
-      { name:'phoneNumber',       label:'Raw Phone Number',              max:20 },
-      { name:'prettyphoneNumber', label:'Pretty Phone Number',           max:30 },
-      { name:'bigIntro',          label:'Big Intro',                     max:50 },
-      { name:'smallIntro',        label:'Small Intro',                   max:160 },
-      { name:'topLocation',       label:'Top Location',                  max:30 },
-      { name:'aboutHeader',       label:'About Section Header',          max:45 },
-      { name:'aboutTitle',        label:'About Section Title',           max:60 },
-      { name:'aboutText',         label:'About Text',                    max:600, type:'textarea' },
-      { name:'teamQuote',         label:'Team Quote',                    max:105 },
-      { name:'teamName1',         label:'Team Name 1',                   max:30 },
-      { name:'teamTitle1',        label:'Team Title 1',                  max:30 },
-      { name:'teamName2',         label:'Team Name 2',                   max:30 },
-      { name:'teamTitle2',        label:'Team Title 2',                  max:30 },
-      { name:'teamName3',         label:'Team Name 3',                   max:30 },
-      { name:'teamTitle3',        label:'Team Title 3',                  max:30 },
-      { name:'teamName4',         label:'Team Name 4',                   max:30 },
-      { name:'teamTitle4',        label:'Team Title 4',                  max:30 },
-      { name:'bigService',        label:'Services Big Title',             max:45 },
-      { name:'smallService',      label:'Services Subtext',               max:235 },
+      { name:'textText',         label:'Main Text',                     max:1000, type:'textarea' },
+      { name:'siteTitle',        label:'Site Title',                    max:50 },
+      { name:'metaDescription',  label:'Meta Description',              max:155, type:'textarea' },
+      { name:'canonicalUrl',     label:'Canonical URL',                 max:100 },
+      { name:'ogUrl',            label:'Open Graph URL',                max:100 },
+      { name:'phoneNumber',      label:'Raw Phone Number',              max:20 },
+      { name:'prettyphoneNumber',label:'Pretty Phone Number',           max:30 },
+      { name:'bigIntro',         label:'Big Intro',                     max:50 },
+      { name:'smallIntro',       label:'Small Intro',                   max:160 },
+      { name:'topLocation',      label:'Top Location',                  max:30 },
+      { name:'aboutHeader',      label:'About Section Header',          max:45 },
+      { name:'aboutTitle',       label:'About Section Title',           max:60 },
+      { name:'aboutText',        label:'About Text',                    max:600, type:'textarea' },
+      { name:'teamQuote',        label:'Team Quote',                    max:105 },
+      { name:'teamName1',        label:'Team Name 1',                   max:30 },
+      { name:'teamTitle1',       label:'Team Title 1',                  max:30 },
+      { name:'teamName2',        label:'Team Name 2',                   max:30 },
+      { name:'teamTitle2',       label:'Team Title 2',                  max:30 },
+      { name:'teamName3',        label:'Team Name 3',                   max:30 },
+      { name:'teamTitle3',       label:'Team Title 3',                  max:30 },
+      { name:'teamName4',        label:'Team Name 4',                   max:30 },
+      { name:'teamTitle4',       label:'Team Title 4',                  max:30 },
+      { name:'bigService',       label:'Services Big Title',            max:45 },
+      { name:'smallService',     label:'Services Subtext',              max:235 },
       ...[1,2,3,4,5,6].map(i=>({
-        name:`serviceItem${i}`,   label:`Service List Item ${i}`,      max:35
+        name:`serviceItem${i}`,  label:`Service List Item ${i}`,      max:35
       })),
-      { name:'portfolioText',     label:'Portfolio Section Title',        max:60 },
+      { name:'portfolioText',    label:'Portfolio Section Title',       max:60 },
       ...[1,2,3,4,5,6].flatMap(i=>[
-        { name:`photo${i}Upper`,  label:`Portfolio ${i} Title`,         max:40 },
-        { name:`photo${i}Lower`,  label:`Portfolio ${i} Subtitle`,      max:40 },
+        { name:`photo${i}Upper`, label:`Portfolio ${i} Title`,        max:40 },
+        { name:`photo${i}Lower`, label:`Portfolio ${i} Subtitle`,     max:40 },
       ]),
-      { name:'testimonialsHeader',label:'Testimonials Header',            max:60 },
-      { name:'testimonial1',      label:'Testimonial 1',                  max:320, type:'textarea' },
-      { name:'testimonial1Name',  label:'Testimonial 1 Name',             max:40 },
-      { name:'testimonial1Title', label:'Testimonial 1 Title',            max:50 },
-      { name:'testimonial2',      label:'Testimonial 2',                  max:320, type:'textarea' },
-      { name:'testimonial2Name',  label:'Testimonial 2 Name',             max:40 },
-      { name:'testimonial2Title', label:'Testimonial 2 Title',            max:50 },
-      { name:'testimonial3',      label:'Testimonial 3',                  max:320, type:'textarea' },
-      { name:'testimonial3Name',  label:'Testimonial 3 Name',             max:40 },
-      { name:'testimonial3Title', label:'Testimonial 3 Title',            max:50 },
-      { name:'contactText',       label:'Contact Section Text',          max:45 },
-      { name:'emailAddress',      label:'Contact Email Address',         max:100 },
-      { name:'streetAddress',     label:'Street Address',                max:100 },
-      { name:'formSpree',         label:'Contact Form Action URL',       max:200 },
-      { name:'googleembedMap',    label:'Google Maps Embed Code',        max:1000, type:'textarea' },
-      { name:'footerText',        label:'Footer Text',                   max:175, type:'textarea' },
-      { name:'facebookUrl',       label:'Facebook Page URL',             max:200 },
-      { name:'youtubeUrl',        label:'YouTube Page URL',              max:200 },
-      { name:'linkedinUrl',       label:'LinkedIn Page URL',             max:200 },
+      { name:'testimonialsHeader',label:'Testimonials Header',           max:60 },
+      { name:'testimonial1',     label:'Testimonial 1',                 max:320, type:'textarea' },
+      { name:'testimonial1Name', label:'Testimonial 1 Name',            max:40 },
+      { name:'testimonial1Title',label:'Testimonial 1 Title',           max:50 },
+      { name:'testimonial2',     label:'Testimonial 2',                 max:320, type:'textarea' },
+      { name:'testimonial2Name', label:'Testimonial 2 Name',            max:40 },
+      { name:'testimonial2Title',label:'Testimonial 2 Title',           max:50 },
+      { name:'testimonial3',     label:'Testimonial 3',                 max:320, type:'textarea' },
+      { name:'testimonial3Name', label:'Testimonial 3 Name',            max:40 },
+      { name:'testimonial3Title',label:'Testimonial 3 Title',           max:50 },
+      { name:'contactText',      label:'Contact Section Text',         max:45 },
+      { name:'emailAddress',     label:'Contact Email Address',        max:100 },
+      { name:'streetAddress',    label:'Street Address',               max:100 },
+      { name:'formSpree',        label:'Contact Form Action URL',      max:200 },
+      { name:'googleembedMap',   label:'Google Maps Embed Code',       max:1000, type:'textarea' },
+      { name:'footerText',       label:'Footer Text',                  max:175, type:'textarea' },
+      { name:'facebookUrl',      label:'Facebook Page URL',            max:200 },
+      { name:'youtubeUrl',       label:'YouTube Page URL',             max:200 },
+      { name:'linkedinUrl',      label:'LinkedIn Page URL',            max:200 },
     ];
 
     // 3) Inject those fields (before accentColor)
@@ -144,10 +146,12 @@
       fieldDefs.forEach(def => {
         const group = document.createElement('div');
         group.className = 'form-group';
+
         const label = document.createElement('label');
         label.htmlFor = def.name;
         label.innerHTML = `${def.label} <code>{{${def.name}}}</code> (max ${def.max})`;
         group.appendChild(label);
+
         let input;
         if (def.type === 'textarea') {
           input = document.createElement('textarea');
@@ -159,33 +163,35 @@
         input.name = def.name;
         input.maxLength = def.max;
         group.appendChild(input);
+
         const counter = document.createElement('div');
         counter.className = 'char-counter';
         counter.innerHTML = `<span id="${def.name}Count">0</span>/${def.max}`;
         group.appendChild(counter);
+
         form.insertBefore(group, accentGroup);
       });
-      // char counters
-      form.querySelectorAll('input,textarea').forEach(i=>{
-        i.addEventListener('input', ()=>{
-          const cnt = document.getElementById(i.id+'Count');
-          if (!cnt) return;
-          cnt.textContent = i.value.length;
-          cnt.classList.toggle('warning', i.value.length > i.maxLength * 0.8);
+
+      // char counters + auto-preview on input
+      form.querySelectorAll('input,textarea').forEach(i => {
+        i.addEventListener('input', () => {
+          const cnt = document.getElementById(i.id + 'Count');
+          if (cnt) {
+            cnt.textContent = i.value.length;
+            cnt.classList.toggle('warning', i.value.length > i.maxLength * 0.8);
+          }
         });
       });
+      form.addEventListener('input', updatePreview);
     }
 
     // 4) Update the preview iframe
     function updatePreview() {
-      if (!template) {
-        alert('Template not loaded yet.');
-        return;
-      }
+      if (!template) return;
       const formData = new FormData(document.getElementById('contentForm'));
       let out = template;
       const regex = /{{([^{}]+)}}/g;
-      let m, keys=new Set();
+      let m, keys = new Set();
       while ((m = regex.exec(template)) !== null) keys.add(m[1]);
       keys.forEach(k => {
         const v = formData.get(k) || '';
@@ -194,7 +200,9 @@
       const prev = document.getElementById('preview');
       prev.innerHTML = '';
       const iframe = document.createElement('iframe');
-      iframe.style.width='100%'; iframe.style.height='100%'; iframe.style.border='none';
+      iframe.style.width = '100%';
+      iframe.style.height = '100%';
+      iframe.style.border = 'none';
       iframe.srcdoc = out;
       prev.appendChild(iframe);
       setTimeout(adjustPreviewDims, 0);
@@ -202,8 +210,8 @@
 
     // 5) Responsive preview controls
     function adjustPreviewDims() {
-      const w = parseInt(document.getElementById('widthSlider').value,10);
-      const h = parseInt(document.getElementById('heightSlider').value,10);
+      const w = parseInt(document.getElementById('widthSlider').value, 10);
+      const h = parseInt(document.getElementById('heightSlider').value, 10);
       document.getElementById('widthDisplay').textContent = w + 'px';
       document.getElementById('heightDisplay').textContent = h + 'px';
       const prev = document.getElementById('preview');
@@ -213,8 +221,8 @@
     function setupResponsive() {
       document.getElementById('widthSlider').addEventListener('input', adjustPreviewDims);
       document.getElementById('heightSlider').addEventListener('input', adjustPreviewDims);
-      document.querySelectorAll('.preset-button').forEach(btn=>{
-        btn.addEventListener('click', ()=>{
+      document.querySelectorAll('.preset-button').forEach(btn => {
+        btn.addEventListener('click', () => {
           document.getElementById('widthSlider').value = btn.dataset.width;
           adjustPreviewDims();
         });
@@ -232,7 +240,7 @@
       updatePreview();
     }
 
-    if (document.readyState==='loading') {
+    if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', init);
     } else {
       init();
