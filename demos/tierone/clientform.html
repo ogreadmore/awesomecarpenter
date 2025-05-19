@@ -6,57 +6,55 @@
   <title>Static Site Generator</title>
   <style>
     /* RESET & BASE */
-    * { box-sizing:border-box; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      margin:0; padding:0;
       font-family: 'Segoe UI', sans-serif;
       background: #f0f2f5;
       color: #333;
     }
     header {
-      padding: 20px;
       text-align: center;
+      padding: 20px;
     }
-    h1 { margin: 0 0 10px; font-size: 2rem; color: #2c3e50; }
-    p.subtitle { margin:0; color: #555; }
+    h1 { font-size: 2rem; color: #2c3e50; margin-bottom: 5px; }
+    p.subtitle { color: #555; }
 
     /* LAYOUT */
     .wrapper {
       display: flex;
       justify-content: center;
       gap: 20px;
-      padding: 10px 20px 20px;
+      padding: 0 20px 20px;
     }
     .form-section {
       flex: 2;
+      max-width: 600px;
       background: #fff;
       border-radius: 8px;
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
       padding: 20px;
       overflow-y: auto;
-      /* subtract header height + padding: ~120px */
       max-height: calc(100vh - 120px);
     }
     .preview-section {
       width: 375px;
       position: sticky;
-      top: 80px; /* sticks below header */
+      top: 80px;
       background: #fff;
       border-radius: 8px;
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
       display: flex;
       flex-direction: column;
-      overflow: hidden;
-      /* same vertical space as form */
       max-height: calc(100vh - 120px);
+      overflow: hidden;
     }
 
     /* FORM STYLES */
     .form-group { margin-bottom: 15px; }
     label {
       display: block;
-      margin-bottom: 5px;
       font-weight: bold;
+      margin-bottom: 5px;
     }
     input, textarea {
       width: 100%;
@@ -100,8 +98,7 @@
     }
     #preview {
       flex: 1;
-      border-top: none;
-      overflow: hidden; /* iframe fills it exactly */
+      overflow: hidden;
     }
     #preview iframe {
       width: 100%;
@@ -133,7 +130,7 @@
     <div class="form-section">
       <h2>Content Form</h2>
       <form id="contentForm" action="https://formspree.io/f/xjvqvrvg" method="POST">
-        <!-- JS will inject all your fields here -->
+        <!-- fields injected by JS -->
         <div class="action-buttons">
           <button type="submit" class="submit-button">Submit</button>
         </div>
@@ -147,7 +144,7 @@
   </div>
 
   <script>
-    // fallback sample template
+    // Fallback if template.html fails
     const sampleTemplate = `
 <!DOCTYPE html>
 <html><head><meta charset="utf-8"><title>{{siteTitle}}</title></head>
@@ -168,17 +165,52 @@
       }
     }
 
-    // Only these fields (we removed the ones you asked)
+    // All fields except the removed ones
     const fields = [
-      { name:'siteTitle',     label:'Site Title',                  max:50 },
-      { name:'bigIntro',      label:'Big Intro',                   max:50 },
-      { name:'smallIntro',    label:'Small Intro',                 max:160 },
-      { name:'topLocation',   label:'Location (Denver, Colorado)', max:30 },
-      { name:'aboutHeader',   label:'About Section Header',        max:45 },
-      { name:'aboutTitle',    label:'About Section Title',         max:60 },
-      { name:'aboutText',     label:'About Text',                  max:600, type:'textarea' },
-      // …add the rest exactly as you need…
-      { name:'accentColor',   label:'Accent Color',               max:7,   type:'color' }
+      { name:'siteTitle',       label:'Site Title',                    max:50 },
+      { name:'bigIntro',        label:'Big Intro',                     max:50 },
+      { name:'smallIntro',      label:'Small Intro',                   max:160 },
+      { name:'topLocation',     label:'Location (Denver, Colorado)',   max:30 },
+      { name:'aboutHeader',     label:'About Section Header',          max:45 },
+      { name:'aboutTitle',      label:'About Section Title',           max:60 },
+      { name:'aboutText',       label:'About Text',                    max:600, type:'textarea' },
+      { name:'teamQuote',       label:'Team Quote',                    max:105 },
+      { name:'teamName1',       label:'Team Name 1',                   max:30 },
+      { name:'teamTitle1',      label:'Team Title 1',                  max:30 },
+      { name:'teamName2',       label:'Team Name 2',                   max:30 },
+      { name:'teamTitle2',      label:'Team Title 2',                  max:30 },
+      { name:'teamName3',       label:'Team Name 3',                   max:30 },
+      { name:'teamTitle3',      label:'Team Title 3',                  max:30 },
+      { name:'teamName4',       label:'Team Name 4',                   max:30 },
+      { name:'teamTitle4',      label:'Team Title 4',                  max:30 },
+      { name:'bigService',      label:'Services Big Title',             max:45 },
+      { name:'smallService',    label:'Services Subtext',               max:235 },
+      ...[1,2,3,4,5,6].map(i=>({
+        name:`serviceItem${i}`, label:`Service List Item ${i}`,      max:35
+      })),
+      { name:'portfolioText',   label:'Portfolio Section Title',        max:60 },
+      ...[1,2,3,4,5,6].flatMap(i=>[
+        { name:`photo${i}Upper`,label:`Portfolio ${i} Title`,         max:40 },
+        { name:`photo${i}Lower`,label:`Portfolio ${i} Subtitle`,      max:40 }
+      ]),
+      { name:'testimonialsHeader',label:'Testimonials Header',            max:60 },
+      { name:'testimonial1',      label:'Testimonial 1',                  max:320, type:'textarea' },
+      { name:'testimonial1Name',  label:'Testimonial 1 Name',             max:40 },
+      { name:'testimonial1Title', label:'Testimonial 1 Title',            max:50 },
+      { name:'testimonial2',      label:'Testimonial 2',                  max:320, type:'textarea' },
+      { name:'testimonial2Name',  label:'Testimonial 2 Name',             max:40 },
+      { name:'testimonial2Title', label:'Testimonial 2 Title',            max:50 },
+      { name:'testimonial3',      label:'Testimonial 3',                  max:320, type:'textarea' },
+      { name:'testimonial3Name',  label:'Testimonial 3 Name',             max:40 },
+      { name:'testimonial3Title', label:'Testimonial 3 Title',            max:50 },
+      { name:'contactText',       label:'Contact Section Text',           max:45 },
+      { name:'emailAddress',      label:'Contact Email Address',          max:100 },
+      { name:'streetAddress',     label:'Street Address',                 max:100 },
+      { name:'footerText',        label:'Footer Text',                    max:175, type:'textarea' },
+      { name:'facebookUrl',       label:'Facebook Page URL',              max:200 },
+      { name:'youtubeUrl',        label:'YouTube Page URL',               max:200 },
+      { name:'linkedinUrl',       label:'LinkedIn Page URL',              max:200 },
+      { name:'accentColor',       label:'Accent Color',                   max:7,   type:'color' }
     ];
 
     function buildForm() {
@@ -194,14 +226,16 @@
         lbl.textContent = `${def.label} (max ${def.max})`;
         group.appendChild(lbl);
 
-        const inp = def.type==='textarea'
-          ? document.createElement('textarea')
-          : document.createElement('input');
-        if (inp.tagName==='INPUT') inp.type = def.type==='color' ? 'color' : 'text';
+        let inp;
+        if (def.type === 'textarea') {
+          inp = document.createElement('textarea');
+        } else {
+          inp = document.createElement('input');
+          inp.type = def.type === 'color' ? 'color' : 'text';
+          if (def.type === 'color') inp.value = '#007bff';
+        }
         inp.id = inp.name = def.name;
         inp.maxLength = def.max;
-        if (def.type==='color') inp.value = '#007bff';
-
         group.appendChild(inp);
 
         const counter = document.createElement('div');
@@ -212,9 +246,9 @@
         form.insertBefore(group, submitGroup);
 
         inp.addEventListener('input', () => {
-          const cnt = document.getElementById(def.name+'Count');
+          const cnt = document.getElementById(def.name + 'Count');
           cnt.textContent = inp.value.length;
-          cnt.classList.toggle('warning', inp.value.length > def.max*0.8);
+          cnt.classList.toggle('warning', inp.value.length > def.max * 0.8);
           renderPreview();
         });
       });
@@ -222,7 +256,6 @@
 
     function renderPreview() {
       const data = new FormData(document.getElementById('contentForm'));
-      // inject a small style so pale templates still show text
       let html = template.replace(
         /<head(\b[^>]*)>/i,
         `<head$1><style>body{color:#333!important}</style>`
