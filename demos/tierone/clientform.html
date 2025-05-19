@@ -18,15 +18,15 @@
     button { background:#007bff; color:#fff; border:none; padding:10px 15px; border-radius:4px; cursor:pointer; font-size:16px; margin-right:10px; }
     button:hover { background:#0069d9; }
     .action-buttons { margin-top:20px; }
-    #preview { border:1px solid #ddd; padding:20px; background:#fff; overflow:auto; resize: both; min-width:300px; min-height:400px; box-sizing:border-box; margin-bottom:15px; }
-    .preview-section { position:sticky; top:20px; max-height:calc(100vh - 40px); overflow:auto; padding:20px; }
+    #preview { border:1px solid #ddd; background:#fff; overflow:auto; resize:both; min-width:300px; min-height:400px; box-sizing:border-box; margin-bottom:15px; }
+    .preview-section { position:sticky; top:20px; max-height:calc(100vh - 40px); overflow:auto; }
     .responsive-controls { margin-bottom:15px; display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
     .width-slider, .height-slider { flex:1; min-width:150px; }
     .width-display, .height-display { font-family:monospace; min-width:60px; padding:3px 6px; background:#eee; border-radius:3px; text-align:center; }
     .preset-buttons { display:flex; gap:5px; flex-wrap:wrap; }
     .preset-button { background:#f8f9fa; color:#333; border:1px solid #ddd; padding:3px 6px; border-radius:3px; cursor:pointer; font-size:12px; }
     .preset-button:hover { background:#e9ecef; }
-    @media (max-width: 992px) {
+    @media (max-width:992px) {
       .container { flex-direction:column; }
       .form-section, .preview-section { width:100%; }
     }
@@ -74,7 +74,7 @@
   <script>
     let template = '';
 
-    // 1) Load the HTML template from template.html
+    // 1) Load your template from template.html
     async function loadTemplate() {
       try {
         const res = await fetch('template.html');
@@ -84,9 +84,9 @@
       }
     }
 
-    // 2) Define your fields (including textText)
+    // 2) Define all fields — now including tagTags
     const fieldDefs = [
-      { name:'textText',         label:'Main Text',                     max:1000, type:'textarea' },
+      { name:'tagTags',          label:'Tags',                          max:200, type:'textarea' },
       { name:'siteTitle',        label:'Site Title',                    max:50 },
       { name:'metaDescription',  label:'Meta Description',              max:155, type:'textarea' },
       { name:'canonicalUrl',     label:'Canonical URL',                 max:100 },
@@ -115,8 +115,8 @@
       })),
       { name:'portfolioText',    label:'Portfolio Section Title',       max:60 },
       ...[1,2,3,4,5,6].flatMap(i=>[
-        { name:`photo${i}Upper`, label:`Portfolio ${i} Title`,        max:40 },
-        { name:`photo${i}Lower`, label:`Portfolio ${i} Subtitle`,     max:40 },
+        { name:`photo${i}Upper`, label:`Portfolio ${i} Title`,         max:40 },
+        { name:`photo${i}Lower`, label:`Portfolio ${i} Subtitle`,      max:40 },
       ]),
       { name:'testimonialsHeader',label:'Testimonials Header',           max:60 },
       { name:'testimonial1',     label:'Testimonial 1',                 max:320, type:'textarea' },
@@ -128,30 +128,28 @@
       { name:'testimonial3',     label:'Testimonial 3',                 max:320, type:'textarea' },
       { name:'testimonial3Name', label:'Testimonial 3 Name',            max:40 },
       { name:'testimonial3Title',label:'Testimonial 3 Title',           max:50 },
-      { name:'contactText',      label:'Contact Section Text',         max:45 },
-      { name:'emailAddress',     label:'Contact Email Address',        max:100 },
-      { name:'streetAddress',    label:'Street Address',               max:100 },
-      { name:'formSpree',        label:'Contact Form Action URL',      max:200 },
-      { name:'googleembedMap',   label:'Google Maps Embed Code',       max:1000, type:'textarea' },
-      { name:'footerText',       label:'Footer Text',                  max:175, type:'textarea' },
-      { name:'facebookUrl',      label:'Facebook Page URL',            max:200 },
-      { name:'youtubeUrl',       label:'YouTube Page URL',             max:200 },
-      { name:'linkedinUrl',      label:'LinkedIn Page URL',            max:200 },
+      { name:'contactText',      label:'Contact Section Text',          max:45 },
+      { name:'emailAddress',     label:'Contact Email Address',         max:100 },
+      { name:'streetAddress',    label:'Street Address',                max:100 },
+      { name:'formSpree',        label:'Contact Form Action URL',       max:200 },
+      { name:'googleembedMap',   label:'Google Maps Embed Code',        max:1000, type:'textarea' },
+      { name:'footerText',       label:'Footer Text',                   max:175, type:'textarea' },
+      { name:'facebookUrl',      label:'Facebook Page URL',             max:200 },
+      { name:'youtubeUrl',       label:'YouTube Page URL',              max:200 },
+      { name:'linkedinUrl',      label:'LinkedIn Page URL',             max:200 },
     ];
 
-    // 3) Inject those fields (before accentColor)
+    // 3) Inject form fields (before the accentColor pick­er)
     function buildForm() {
       const form = document.getElementById('contentForm');
       const accentGroup = document.getElementById('accentColor').closest('.form-group');
       fieldDefs.forEach(def => {
         const group = document.createElement('div');
         group.className = 'form-group';
-
         const label = document.createElement('label');
         label.htmlFor = def.name;
         label.innerHTML = `${def.label} <code>{{${def.name}}}</code> (max ${def.max})`;
         group.appendChild(label);
-
         let input;
         if (def.type === 'textarea') {
           input = document.createElement('textarea');
@@ -163,16 +161,14 @@
         input.name = def.name;
         input.maxLength = def.max;
         group.appendChild(input);
-
         const counter = document.createElement('div');
         counter.className = 'char-counter';
         counter.innerHTML = `<span id="${def.name}Count">0</span>/${def.max}`;
         group.appendChild(counter);
-
         form.insertBefore(group, accentGroup);
       });
 
-      // char counters + auto-preview on input
+      // char counters + live‐preview on every input
       form.querySelectorAll('input,textarea').forEach(i => {
         i.addEventListener('input', () => {
           const cnt = document.getElementById(i.id + 'Count');
@@ -185,7 +181,7 @@
       form.addEventListener('input', updatePreview);
     }
 
-    // 4) Update the preview iframe
+    // 4) Render iframe preview
     function updatePreview() {
       if (!template) return;
       const formData = new FormData(document.getElementById('contentForm'));
@@ -210,8 +206,8 @@
 
     // 5) Responsive preview controls
     function adjustPreviewDims() {
-      const w = parseInt(document.getElementById('widthSlider').value, 10);
-      const h = parseInt(document.getElementById('heightSlider').value, 10);
+      const w = +document.getElementById('widthSlider').value;
+      const h = +document.getElementById('heightSlider').value;
       document.getElementById('widthDisplay').textContent = w + 'px';
       document.getElementById('heightDisplay').textContent = h + 'px';
       const prev = document.getElementById('preview');
@@ -221,8 +217,8 @@
     function setupResponsive() {
       document.getElementById('widthSlider').addEventListener('input', adjustPreviewDims);
       document.getElementById('heightSlider').addEventListener('input', adjustPreviewDims);
-      document.querySelectorAll('.preset-button').forEach(btn => {
-        btn.addEventListener('click', () => {
+      document.querySelectorAll('.preset-button').forEach(btn=>{
+        btn.addEventListener('click', ()=>{
           document.getElementById('widthSlider').value = btn.dataset.width;
           adjustPreviewDims();
         });
@@ -230,16 +226,14 @@
       window.addEventListener('resize', adjustPreviewDims);
     }
 
-    // 6) Initialize everything
+    // 6) Kick it all off
     async function init() {
       await loadTemplate();
       buildForm();
       setupResponsive();
       document.getElementById('updatePreview').addEventListener('click', updatePreview);
-      // initial preview
       updatePreview();
     }
-
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', init);
     } else {
