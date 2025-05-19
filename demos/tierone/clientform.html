@@ -14,10 +14,19 @@
     }
     header {
       text-align: center;
-      padding: 20px;
+      padding: 40px 20px;      /* more space */
+      margin-bottom: 20px;
     }
-    h1 { font-size: 2rem; color: #2c3e50; margin-bottom: 5px; }
-    p.subtitle { color: #555; }
+    h1 { 
+      font-size: 2.5rem;       /* slightly larger */
+      color: #2c3e50; 
+      margin-bottom: 10px;     /* spacing below title */
+    }
+    p.subtitle { 
+      font-size: 1.1rem;
+      color: #555; 
+      margin-bottom: 20px;     /* spacing below subtitle */
+    }
 
     /* LAYOUT */
     .wrapper {
@@ -30,59 +39,75 @@
       flex: 2;
       max-width: 600px;
       background: #fff;
-      border-radius: 8px;
+      border-radius: 12px;     /* rounder */
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      padding: 20px;
+      padding: 30px;           /* more padding */
       overflow-y: auto;
-      max-height: calc(100vh - 120px);
+      max-height: calc(100vh - 160px);
+    }
+    .form-section h2 {
+      margin-bottom: 20px;     /* more space around subheader */
+      font-size: 1.5rem;
+      color: #2c3e50;
     }
     .preview-section {
       width: 375px;
       position: sticky;
       top: 80px;
       background: #fff;
-      border-radius: 8px;
+      border-radius: 12px;
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
       display: flex;
       flex-direction: column;
-      max-height: calc(100vh - 120px);
+      max-height: calc(100vh - 160px);
       overflow: hidden;
+    }
+    .preview-header {
+      padding: 20px;           /* more space */
+      font-size: 1.25rem;
+      font-weight: bold;
+      color: #2c3e50;
+      border-bottom: 1px solid #eee;
+      background: #fafafa;
     }
 
     /* FORM STYLES */
-    .form-group { margin-bottom: 15px; }
+    .form-group { margin-bottom: 20px; }
     label {
       display: block;
       font-weight: bold;
-      margin-bottom: 5px;
+      margin-bottom: 8px;      /* more space */
+      color: #444;
     }
     input, textarea {
       width: 100%;
-      padding: 8px;
+      padding: 12px 15px;      /* larger fields */
       border: 1px solid #ddd;
-      border-radius: 4px;
+      border-radius: 8px;      /* more rounded */
       font-size: 1rem;
+      background: #fafafa;
     }
-    textarea { resize: vertical; min-height: 80px; }
+    textarea { resize: vertical; min-height: 100px; }
     .char-counter {
       font-size: 0.85rem;
       color: #666;
       text-align: right;
+      margin-top: 4px;
     }
     .warning { color: #c00; }
 
     /* SUBMIT */
     .action-buttons {
       text-align: right;
-      margin-top: 20px;
+      margin-top: 30px;
     }
     button.submit-button {
       background: #007bff;
       color: #fff;
       border: none;
-      padding: 10px 20px;
-      border-radius: 4px;
-      font-size: 1rem;
+      padding: 14px 28px;      /* larger button */
+      border-radius: 8px;      /* rounded */
+      font-size: 1.1rem;
       cursor: pointer;
     }
     button.submit-button:hover {
@@ -90,15 +115,9 @@
     }
 
     /* PREVIEW */
-    .preview-header {
-      padding: 10px 15px;
-      border-bottom: 1px solid #eee;
-      font-weight: bold;
-      background: #fafafa;
-    }
     #preview {
       flex: 1;
-      overflow: hidden;
+      background: #fff;
     }
     #preview iframe {
       width: 100%;
@@ -130,7 +149,7 @@
     <div class="form-section">
       <h2>Content Form</h2>
       <form id="contentForm" action="https://formspree.io/f/xjvqvrvg" method="POST">
-        <!-- fields injected by JS -->
+        <!-- JS will inject all your fields here -->
         <div class="action-buttons">
           <button type="submit" class="submit-button">Submit</button>
         </div>
@@ -144,12 +163,12 @@
   </div>
 
   <script>
-    // Fallback if template.html fails
+    // fallback if template.html fails
     const sampleTemplate = `
 <!DOCTYPE html>
 <html><head><meta charset="utf-8"><title>{{siteTitle}}</title></head>
 <body style="font-family:sans-serif;padding:20px;">
-  <h1 style="color:{{accentColor}}">{{bigIntro}}</h1>
+  <h1>{{bigIntro}}</h1>
   <p>{{smallIntro}}</p>
   <p>{{topLocation}}</p>
 </body></html>`;
@@ -165,7 +184,7 @@
       }
     }
 
-    // All fields except the removed ones
+    // All fields except accentColor, tags, metaDescription, canonicalUrl, ogUrl, phoneNumber, formSpree, googleembedMap
     const fields = [
       { name:'siteTitle',       label:'Site Title',                    max:50 },
       { name:'bigIntro',        label:'Big Intro',                     max:50 },
@@ -209,8 +228,7 @@
       { name:'footerText',        label:'Footer Text',                    max:175, type:'textarea' },
       { name:'facebookUrl',       label:'Facebook Page URL',              max:200 },
       { name:'youtubeUrl',        label:'YouTube Page URL',               max:200 },
-      { name:'linkedinUrl',       label:'LinkedIn Page URL',              max:200 },
-      { name:'accentColor',       label:'Accent Color',                   max:7,   type:'color' }
+      { name:'linkedinUrl',       label:'LinkedIn Page URL',              max:200 }
     ];
 
     function buildForm() {
@@ -231,8 +249,7 @@
           inp = document.createElement('textarea');
         } else {
           inp = document.createElement('input');
-          inp.type = def.type === 'color' ? 'color' : 'text';
-          if (def.type === 'color') inp.value = '#007bff';
+          inp.type = 'text';
         }
         inp.id = inp.name = def.name;
         inp.maxLength = def.max;
@@ -265,7 +282,7 @@
         `<iframe srcdoc="${html.replace(/"/g,'&quot;')}"></iframe>`;
     }
 
-    (async() => {
+    (async () => {
       await loadTemplate();
       buildForm();
       renderPreview();
