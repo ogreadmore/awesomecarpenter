@@ -1,55 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Static Site Generator (Formspree)</title>
   <style>
-    body { font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height:1.6; max-width:1200px; margin:0 auto; padding:20px; color:#333; }
+    body { font-family:Segoe UI, sans-serif; margin:20px auto; max-width:1200px; color:#333; }
     h1,h2 { color:#2c3e50; }
-    .container { display:flex; gap:20px; margin-top:20px; align-items:flex-start; }
-    .form-section, .preview-section { flex:1; padding:20px; background:#f8f9fa; border-radius:8px; box-shadow:0 2px 4px rgba(0,0,0,0.1); }
-    .form-group { margin-bottom:15px; }
-    label { display:block; margin-bottom:5px; font-weight:bold; }
-    input, textarea { width:100%; padding:8px; border:1px solid #ddd; border-radius:4px; font-size:16px; }
-    textarea { min-height:100px; resize:vertical; }
-    .char-counter { font-size:12px; color:#6c757d; text-align:right; margin-top:5px; }
-    .warning { color:#dc3545; }
-    button { background:#007bff; color:#fff; border:none; padding:10px 15px; border-radius:4px; cursor:pointer; font-size:16px; margin-right:10px; }
-    button:hover { background:#0069d9; }
-    .action-buttons { margin-top:20px; }
-    #preview { border:1px solid #ddd; background:#fff; overflow:auto; resize:both; min-width:300px; min-height:400px; box-sizing:border-box; margin-bottom:15px; }
-    .preview-section { position:sticky; top:20px; max-height:calc(100vh - 40px); overflow:auto; }
-    .responsive-controls { margin-bottom:15px; display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
-    .width-slider, .height-slider { flex:1; min-width:150px; }
-    .width-display, .height-display { font-family:monospace; min-width:60px; padding:3px 6px; background:#eee; border-radius:3px; text-align:center; }
-    .preset-buttons { display:flex; gap:5px; flex-wrap:wrap; }
-    .preset-button { background:#f8f9fa; color:#333; border:1px solid #ddd; padding:3px 6px; border-radius:3px; cursor:pointer; font-size:12px; }
-    .preset-button:hover { background:#e9ecef; }
-    @media (max-width:992px) {
-      .container { flex-direction:column; }
-      .form-section, .preview-section { width:100%; }
+    .container { display:flex; gap:20px; }
+    .form-section, .preview-section {
+      flex:1; background:#f8f9fa; padding:20px; border-radius:8px; box-shadow:0 2px 4px rgba(0,0,0,0.1);
     }
+    .form-group { margin-bottom:15px; }
+    label { font-weight:bold; display:block; margin-bottom:5px; }
+    input, textarea { width:100%; padding:8px; border:1px solid #ddd; border-radius:4px; font-size:16px; }
+    textarea { min-height:80px; resize:vertical; }
+    .char-counter { font-size:12px; color:#666; text-align:right; }
+    .warning { color:#c00; }
+    .responsive-controls { margin-bottom:15px; display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+    .width-slider, .height-slider { flex:1; min-width:150px; }
+    .width-display, .height-display { width:60px; text-align:center; font-family:monospace; }
+    .preset-buttons button { margin-right:5px; padding:4px 8px; font-size:12px; }
+    button { background:#007bff; color:#fff; border:none; padding:10px 15px; border-radius:4px; cursor:pointer; }
+    button:hover { background:#0069d9; }
+    #preview { border:1px solid #ddd; background:#fff; resize:both; overflow:auto; min-width:300px; min-height:400px; }
   </style>
 </head>
 <body>
   <h1>Static Site Generator</h1>
-  <p>Fill out the form to preview and then submit via Formspree.</p>
+  <p>Fill out the form and watch the live preview. When you’re ready, click Submit.</p>
 
   <div class="container">
     <div class="form-section">
       <h2>Content Form</h2>
       <form id="contentForm" action="https://formspree.io/f/xjvqvrvg" method="POST">
-        <!-- Accent Color always last -->
+        <!-- Accent color is included manually; everything else is injected by JS -->
         <div class="form-group">
           <label for="accentColor">Accent Color <code>{{accentColor}}</code></label>
           <input type="color" id="accentColor" name="accentColor" value="#007bff" maxlength="7">
           <div class="char-counter"><span id="accentColorCount">0</span>/7</div>
         </div>
-        <div class="action-buttons">
-          <button type="button" id="updatePreview">Preview</button>
-          <button type="submit">Submit</button>
-        </div>
+        <button type="submit">Submit</button>
       </form>
     </div>
 
@@ -57,188 +48,125 @@
       <h2>Preview</h2>
       <div class="responsive-controls">
         <div class="preset-buttons">
-          <button class="preset-button" data-width="375">Mobile</button>
-          <button class="preset-button" data-width="768">Tablet</button>
-          <button class="preset-button" data-width="1024">Laptop</button>
-          <button class="preset-button" data-width="1440">Desktop</button>
+          <button data-width="375">Mobile</button>
+          <button data-width="768">Tablet</button>
+          <button data-width="1024">Laptop</button>
+          <button data-width="1440">Desktop</button>
         </div>
-        <input type="range" class="width-slider" id="widthSlider" min="320" max="1440" value="100%">
-        <span class="width-display" id="widthDisplay">100%</span>
-        <input type="range" class="height-slider" id="heightSlider" min="400" max="1200" value="600">
-        <span class="height-display" id="heightDisplay">600px</span>
+        <input type="range" id="widthSlider" class="width-slider" min="320" max="1440" value="880">
+        <div class="width-display" id="widthDisplay">880px</div>
+        <input type="range" id="heightSlider" class="height-slider" min="400" max="1200" value="600">
+        <div class="height-display" id="heightDisplay">600px</div>
       </div>
-      <div id="preview"><p>Your preview will appear here.</p></div>
+      <div id="preview"><p>Loading preview…</p></div>
     </div>
   </div>
 
   <script>
-    let template = '';
+    // Fallback sample if template.html won't load
+    const sampleTemplate = `
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>{{siteTitle}}</title></head>
+<body><h1 style="color:{{accentColor}}">{{bigIntro}}</h1><p>{{smallIntro}}</p></body>
+</html>`;
 
-    // 1) Load your template from template.html
+    let template = '';
     async function loadTemplate() {
       try {
         const res = await fetch('template.html');
-        template = await res.text();
-      } catch (err) {
-        console.error('Failed to load template.html:', err);
+        template = res.ok ? await res.text() : sampleTemplate;
+      } catch {
+        template = sampleTemplate;
       }
     }
 
-    // 2) Define all fields — now including tagTags
-    const fieldDefs = [
-      { name:'tagTags',          label:'Tags',                          max:200, type:'textarea' },
-      { name:'siteTitle',        label:'Site Title',                    max:50 },
-      { name:'metaDescription',  label:'Meta Description',              max:155, type:'textarea' },
-      { name:'canonicalUrl',     label:'Canonical URL',                 max:100 },
-      { name:'ogUrl',            label:'Open Graph URL',                max:100 },
-      { name:'phoneNumber',      label:'Raw Phone Number',              max:20 },
-      { name:'prettyphoneNumber',label:'Pretty Phone Number',           max:30 },
-      { name:'bigIntro',         label:'Big Intro',                     max:50 },
-      { name:'smallIntro',       label:'Small Intro',                   max:160 },
-      { name:'topLocation',      label:'Top Location',                  max:30 },
-      { name:'aboutHeader',      label:'About Section Header',          max:45 },
-      { name:'aboutTitle',       label:'About Section Title',           max:60 },
-      { name:'aboutText',        label:'About Text',                    max:600, type:'textarea' },
-      { name:'teamQuote',        label:'Team Quote',                    max:105 },
-      { name:'teamName1',        label:'Team Name 1',                   max:30 },
-      { name:'teamTitle1',       label:'Team Title 1',                  max:30 },
-      { name:'teamName2',        label:'Team Name 2',                   max:30 },
-      { name:'teamTitle2',       label:'Team Title 2',                  max:30 },
-      { name:'teamName3',        label:'Team Name 3',                   max:30 },
-      { name:'teamTitle3',       label:'Team Title 3',                  max:30 },
-      { name:'teamName4',        label:'Team Name 4',                   max:30 },
-      { name:'teamTitle4',       label:'Team Title 4',                  max:30 },
-      { name:'bigService',       label:'Services Big Title',            max:45 },
-      { name:'smallService',     label:'Services Subtext',              max:235 },
-      ...[1,2,3,4,5,6].map(i=>({
-        name:`serviceItem${i}`,  label:`Service List Item ${i}`,      max:35
-      })),
-      { name:'portfolioText',    label:'Portfolio Section Title',       max:60 },
-      ...[1,2,3,4,5,6].flatMap(i=>[
-        { name:`photo${i}Upper`, label:`Portfolio ${i} Title`,         max:40 },
-        { name:`photo${i}Lower`, label:`Portfolio ${i} Subtitle`,      max:40 },
-      ]),
-      { name:'testimonialsHeader',label:'Testimonials Header',           max:60 },
-      { name:'testimonial1',     label:'Testimonial 1',                 max:320, type:'textarea' },
-      { name:'testimonial1Name', label:'Testimonial 1 Name',            max:40 },
-      { name:'testimonial1Title',label:'Testimonial 1 Title',           max:50 },
-      { name:'testimonial2',     label:'Testimonial 2',                 max:320, type:'textarea' },
-      { name:'testimonial2Name', label:'Testimonial 2 Name',            max:40 },
-      { name:'testimonial2Title',label:'Testimonial 2 Title',           max:50 },
-      { name:'testimonial3',     label:'Testimonial 3',                 max:320, type:'textarea' },
-      { name:'testimonial3Name', label:'Testimonial 3 Name',            max:40 },
-      { name:'testimonial3Title',label:'Testimonial 3 Title',           max:50 },
-      { name:'contactText',      label:'Contact Section Text',          max:45 },
-      { name:'emailAddress',     label:'Contact Email Address',         max:100 },
-      { name:'streetAddress',    label:'Street Address',                max:100 },
-      { name:'formSpree',        label:'Contact Form Action URL',       max:200 },
-      { name:'googleembedMap',   label:'Google Maps Embed Code',        max:1000, type:'textarea' },
-      { name:'footerText',       label:'Footer Text',                   max:175, type:'textarea' },
-      { name:'facebookUrl',      label:'Facebook Page URL',             max:200 },
-      { name:'youtubeUrl',       label:'YouTube Page URL',              max:200 },
-      { name:'linkedinUrl',      label:'LinkedIn Page URL',             max:200 },
+    // Define your real placeholders here
+    const placeholders = [
+      'siteTitle','metaDescription','canonicalUrl','ogUrl',
+      'bigIntro','smallIntro','aboutHeader','aboutText',
+      'footerText'
+      // add yours...
     ];
 
-    // 3) Inject form fields (before the accentColor pick­er)
     function buildForm() {
       const form = document.getElementById('contentForm');
-      const accentGroup = document.getElementById('accentColor').closest('.form-group');
-      fieldDefs.forEach(def => {
+      const accentEl = document.getElementById('accentColor').closest('.form-group');
+
+      placeholders.forEach(name => {
         const group = document.createElement('div');
         group.className = 'form-group';
-        const label = document.createElement('label');
-        label.htmlFor = def.name;
-        label.innerHTML = `${def.label} <code>{{${def.name}}}</code> (max ${def.max})`;
-        group.appendChild(label);
-        let input;
-        if (def.type === 'textarea') {
-          input = document.createElement('textarea');
-        } else {
-          input = document.createElement('input');
-          input.type = 'text';
-        }
-        input.id = def.name;
-        input.name = def.name;
-        input.maxLength = def.max;
-        group.appendChild(input);
+        const lbl = document.createElement('label');
+        lbl.htmlFor = name;
+        lbl.innerHTML = `${name} <code>{{${name}}}</code>`;
+        group.appendChild(lbl);
+
+        const inp = document.createElement(
+          name.toLowerCase().includes('description') || name==='aboutText' || name==='footerText'
+            ? 'textarea' : 'input'
+        );
+        inp.id = inp.name = name;
+        inp.maxLength =  name==='metaDescription' ? 155 : 50;
+        group.appendChild(inp);
+
         const counter = document.createElement('div');
         counter.className = 'char-counter';
-        counter.innerHTML = `<span id="${def.name}Count">0</span>/${def.max}`;
+        counter.innerHTML = `<span id="${name}Count">0</span>/`+inp.maxLength;
         group.appendChild(counter);
-        form.insertBefore(group, accentGroup);
+
+        form.insertBefore(group, accentEl);
       });
 
-      // char counters + live‐preview on every input
-      form.querySelectorAll('input,textarea').forEach(i => {
-        i.addEventListener('input', () => {
-          const cnt = document.getElementById(i.id + 'Count');
+      form.querySelectorAll('input,textarea').forEach(el => {
+        el.addEventListener('input', () => {
+          const cnt = document.getElementById(el.id+'Count');
           if (cnt) {
-            cnt.textContent = i.value.length;
-            cnt.classList.toggle('warning', i.value.length > i.maxLength * 0.8);
+            cnt.textContent = el.value.length;
+            cnt.classList.toggle('warning', el.value.length > el.maxLength * .8);
           }
+          renderPreview();
         });
       });
-      form.addEventListener('input', updatePreview);
     }
 
-    // 4) Render iframe preview
-    function updatePreview() {
-      if (!template) return;
-      const formData = new FormData(document.getElementById('contentForm'));
-      let out = template;
-      const regex = /{{([^{}]+)}}/g;
-      let m, keys = new Set();
-      while ((m = regex.exec(template)) !== null) keys.add(m[1]);
-      keys.forEach(k => {
-        const v = formData.get(k) || '';
-        out = out.replace(new RegExp(`{{${k}}}`, 'g'), v);
-      });
-      const prev = document.getElementById('preview');
-      prev.innerHTML = '';
-      const iframe = document.createElement('iframe');
-      iframe.style.width = '100%';
-      iframe.style.height = '100%';
-      iframe.style.border = 'none';
-      iframe.srcdoc = out;
-      prev.appendChild(iframe);
-      setTimeout(adjustPreviewDims, 0);
+    function renderPreview() {
+      const data = new FormData(document.getElementById('contentForm'));
+      let html = template.replace(
+        /<head(\b[^>]*)>/i,
+        `<head$1><style>body{color:#333!important}</style>`
+      );
+      html = html.replace(/{{\s*([\w]+)\s*}}/g, (_,key)=>(data.get(key)||''));
+      const iframe = `<iframe style="width:100%;height:100%;border:0" srcdoc="${html.replace(/"/g,'&quot;')}"></iframe>`;
+      document.getElementById('preview').innerHTML = iframe;
+      adjustPreviewDims();
     }
 
-    // 5) Responsive preview controls
     function adjustPreviewDims() {
       const w = +document.getElementById('widthSlider').value;
       const h = +document.getElementById('heightSlider').value;
-      document.getElementById('widthDisplay').textContent = w + 'px';
-      document.getElementById('heightDisplay').textContent = h + 'px';
-      const prev = document.getElementById('preview');
-      prev.style.width = w + 'px';
-      prev.style.height = h + 'px';
-    }
-    function setupResponsive() {
-      document.getElementById('widthSlider').addEventListener('input', adjustPreviewDims);
-      document.getElementById('heightSlider').addEventListener('input', adjustPreviewDims);
-      document.querySelectorAll('.preset-button').forEach(btn=>{
-        btn.addEventListener('click', ()=>{
-          document.getElementById('widthSlider').value = btn.dataset.width;
-          adjustPreviewDims();
-        });
-      });
-      window.addEventListener('resize', adjustPreviewDims);
+      document.getElementById('widthDisplay').textContent = w+'px';
+      document.getElementById('heightDisplay').textContent = h+'px';
+      const p = document.getElementById('preview');
+      p.style.width = w+'px';
+      p.style.height = h+'px';
     }
 
-    // 6) Kick it all off
-    async function init() {
+    function setupResponsive() {
+      document.getElementById('widthSlider').addEventListener('input', renderPreview);
+      document.getElementById('heightSlider').addEventListener('input', renderPreview);
+      document.querySelectorAll('.preset-buttons button').forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+          document.getElementById('widthSlider').value = btn.dataset.width;
+          renderPreview();
+        });
+      });
+    }
+
+    (async()=>{
       await loadTemplate();
       buildForm();
       setupResponsive();
-      document.getElementById('updatePreview').addEventListener('click', updatePreview);
-      updatePreview();
-    }
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', init);
-    } else {
-      init();
-    }
+      renderPreview();
+    })();
   </script>
 </body>
 </html>
