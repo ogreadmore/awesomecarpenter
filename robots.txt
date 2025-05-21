@@ -1,2 +1,7 @@
+# robots.txt for https://awesomecarpenter.com
+
 User-agent: *
-Allow: /
+Disallow:
+
+# Point crawlers to the XML sitemap
+Sitemap: https://awesomecarpenter.com/sitemap.xml
